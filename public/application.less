@@ -1,0 +1,87 @@
+body {
+  background: black;
+  color: white;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+div,
+span {
+  margin: 0;
+  padding: 0;
+}
+
+#status {
+  display: absolute;
+  top: 0px;
+  left: 0px;
+  padding: 8px;
+}
+
+.swimLane {
+  float: left;
+  width: 160px;
+  border-right: 1px solid white;
+
+  .title {
+    padding: 4px;
+  }
+
+  .cards {
+    padding: 10px;
+  }
+}
+
+.card {
+  background-color: #eee;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border: 2px solid #ddd;
+  width: 140px;
+  height: 170px;
+  float: left;
+  margin: 8px;
+
+  .header {
+    background-color: #aaa;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    padding: 4px;
+    height: 40px;
+    font-size: small;
+    border: 2px solid #333;
+  }
+
+  .body {
+    padding: 4px;
+    overflow: hidden;
+    color: black;
+    font-size: small;
+  }
+
+  .metadata { display: none; }
+}
+
+.card.Feature .header {
+  background-color: light-blue;
+}
+
+.card.Story .header {
+  background-color: blue;
+}
+
+.card.TestCase .header {
+  background-color: green;
+}
+
+.card.Risk .header {
+  background-color: red;
+}

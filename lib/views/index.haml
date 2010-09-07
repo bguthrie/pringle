@@ -1,0 +1,25 @@
+%html
+  %head
+    %title Leangle
+    %link{:rel => "stylesheet", :type => "text/css", :href => "/application.css"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.ui.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.template.js"}
+    %script{:type => "text/javascript", :src => "/javascript/index.js"}
+    %script{:id => "cardTemplate", :type => "text/html"}
+      .card
+        .metadata
+          .number
+          .name
+          .card_type
+        %h3.header
+          .body
+  %script{:id => "swimlaneTemplate", :type => "text/html"}
+    .swimLane
+      %h2.title
+      .cards
+
+  %body
+    #status
+    #main
+      #storyWall
