@@ -27,61 +27,55 @@ span {
 }
 
 .swimLane {
-  float: left;
-  width: 160px;
-  border-right: 1px solid white;
-
-  .title {
-    padding: 4px;
-  }
-
-  .cards {
-    padding: 10px;
-  }
+  border-right: 2px solid white;
+  vertical-align: top;
 }
 
 .card {
   background-color: #eee;
-  -webkit-border-radius: 8px;
-  -moz-border-radius: 8px;
+  // -webkit-border-radius: 8px;
+  // -moz-border-radius: 8px;
   border: 2px solid #ddd;
-  width: 140px;
-  height: 170px;
+  width: 120px;
   float: left;
   margin: 8px;
 
-  .header {
-    background-color: #aaa;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    padding: 4px;
-    height: 40px;
-    font-size: small;
-    border: 2px solid #333;
+    // -webkit-border-radius: 8px;
+    // -moz-border-radius: 8px;
+
+  .number {
+    background-color: black;
+    color: white;
+    opacity: 0.8;
+    font-size: large;
+    padding: 6px;
   }
 
-  .body {
-    padding: 4px;
-    overflow: hidden;
+  .name {
+    font-size: x-small;
+    background-color: white;
+    opacity: 0.8;
     color: black;
-    font-size: small;
+    padding: 6px;
   }
-
-  .metadata { display: none; }
 }
 
-.card.Feature .header {
-  background-color: light-blue;
+.card.Feature {
+  background-color: #999cff;
 }
 
-.card.Story .header {
+.card.Story {
   background-color: blue;
 }
 
-.card.TestCase .header {
-  background-color: green;
+.card.TestCase {
+  background-color: #00cc55;
 }
 
-.card.Risk .header {
+.card.Defect {
   background-color: red;
+}
+
+.card.Risk {
+  background-color: #a60014;
 }

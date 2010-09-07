@@ -18,13 +18,18 @@ Mingle = {
       if (this.name === propName) { property = this; }
     });
 
-    return property ? property.value : "";
+    return property ? property.value : null;
   }
 }
 
 $(document).ready(function() {
-  $("#status").html("Loading cards...");
+  $("#status").html("Loading story wall...");
   var storyWall = $("#storyWall");
+  storyWall.hide();
+  var CardColors = {};
+
+  // var row  = function(content) { return $("<tr></tr>").append(content); }
+  // var cell = function(content) { return $(content).appendTo("<td></td>").closest("td"); }
 
   var initCards = function() {
     Mingle.get("/projects/agile_hybrid/cards", { page: "all" }, function(data) {
@@ -32,30 +37,49 @@ $(document).ready(function() {
 
       $(data.cards).each(function() {
         console.log(this);
-        var swimlane = storyWall.find(".swimLane[data-name='" + Mingle.property(this, "Story Status") + "']");
+        var status = Mingle.property(this, "Story Status") || Mingle.property(this, "Defect Status") || Mingle.property(this, "Risk Status") || Mingle.property(this, "Feature Status");
+        var swimlane = storyWall.find("tbody .swimLane[data-name='" + status + "']");
 
         var card = template.clone();
-        card.addClass(this.card_type.name.replace(/\s+/, ""))
-        card.find(".header").html("#" + this.number + " - " + this.name);
-        card.find(".body").html(this.description);
-        swimlane.append(card);
+        card.attr("data-type", this.card_type.name);
+        card.css({ backgroundColor: CardColors[this.card_type.name] });
+        card.find(".number").html("#" + this.number);
+        card.find(".name").html(this.name);
+        $(swimlane).append(card);
       });
 
       $("#status").html("");
-    })
+      storyWall.show();
+    });
+  };
+
+  var initCardColors = function() {
+    Mingle.get("/projects/agile_hybrid/card_types", function(data) {
+      $(data.card_types).each(function() {
+        CardColors[this.name] = this.color;
+      });
+    });
+
+    initCards();
   };
 
   Mingle.get("/projects/agile_hybrid/property_definitions/111", function(data) {
     var template = $( $("#swimlaneTemplate").html() );
-    console.log(data);
 
-    $(data.property_definition.property_value_details).each(function() {
-      var swimlane = template.clone();
-      swimlane.find(".title").html(this.value);
-      swimlane.attr("data-name", this.value);
-      storyWall.append(swimlane);
+    var headers = $(data.property_definition.property_value_details).map(function() {
+      return $("<th/>").addClass("swimLane").html(this.value).attr("data-name", this.value);
     });
 
-    initCards();
+    var emptyCols = $(data.property_definition.property_value_details).map(function() {
+      return $("<td>&nbsp;</td>").addClass("swimLane").attr("data-name", this.value);
+    });
+
+    $("<tr/>").appendTo(storyWall.find("thead"));
+    $(headers).appendTo(storyWall.find("thead tr"));
+
+    $("<tr/>").appendTo(storyWall.find("tbody"));
+    $(emptyCols).appendTo(storyWall.find("tbody tr"));
+
+    initCardColors();
   });
 });
