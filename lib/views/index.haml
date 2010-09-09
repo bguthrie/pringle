@@ -3,16 +3,24 @@
     %title Leangle
     %link{:rel => "stylesheet", :type => "text/css", :href => "/application.css"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.js"}
-    %script{:type => "text/javascript", :src => "/javascript/jquery.ui.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.dataset.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.template.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
     %script{:id => "cardTemplate", :type => "text/html"}
       .card
-        .number
-        .name
+        .header
+          .number
+        .body
+          .name
+          .type
+        .footer
+          .owner
+
   %body
     #status
     #main
       %table#storyWall
         %thead
+          %tr
         %tbody
+          %tr
