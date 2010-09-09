@@ -6,11 +6,11 @@ require 'active_support/json/encoding'
 
 set :haml, :format => :html5
 
-get '/leangle/configure' do
+get '/pringle/configure' do
   haml :configure
 end
 
-get '/leangle' do
+get '/pringle' do
   haml :index
 end
 
