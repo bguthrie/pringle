@@ -4,7 +4,6 @@ require 'wrest'
 require 'haml'
 require 'active_support/json/encoding'
 
-
 class Pringle < Sinatra::Base
   MINGLE_USERNAME = "bguthrie"
   MINGLE_PASSWORD = "password"
@@ -27,11 +26,15 @@ class Pringle < Sinatra::Base
     mingle_uri = "http://#{MINGLE_USERNAME}:#{MINGLE_PASSWORD}@#{MINGLE_HOST}#{MINGLE_API_BASE}#{params[:path]}.xml?#{params[:params]}"
     response = mingle_uri.to_uri.get
 
-    if response.code.to_i == 404
+    case response.code.to_i
+    when 404
       status 404
       body ActiveSupport::JSON.encode(:error => "Not Found", :uri => mingle_uri)
-    else
+    when 200
       body ActiveSupport::JSON.encode(response.deserialise)
+    else
+      status response.code.to_i
+      body ActiveSupport::JSON.encode(:error => "Unknown", :text => response.body)
     end
   end
 
