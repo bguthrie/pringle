@@ -40,6 +40,41 @@ body {
   }
 }
 
+#main {
+  overflow-y: scroll;
+  height: 90%;
+}
+
+#footer {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  left: 0px;
+  height: 50px;
+  background: black url('/images/tw_logo.png') 4px left no-repeat;
+  border-top: 1px solid white;
+  
+  #options {
+    padding-top: 10px;
+    margin-left: 270px;
+    input, form { display: inline; }
+    
+    input[type=text] {
+      padding: 4px;
+    }
+    
+    button {
+      padding: 4px;
+      border: 1px solid #eee;
+      background-color: #ddd;
+      
+      :hover {
+        background-color: #999;
+      }
+    }
+  }
+}
+
 .card {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
