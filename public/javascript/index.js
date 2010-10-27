@@ -43,8 +43,8 @@ Pringle = {
     html: function(card) {
       var tmpl = Pringle.Card.blank();
       
-      tmpl.attr("data-type", card.card_type.name);
-      tmpl.attr("id", "#" + card.number);
+      tmpl.dataset({ type: card.card_type.name, modified: card.modified_on });
+      tmpl.attr("id", card.number);
       
       tmpl.find(".number").html("#" + card.number);
       tmpl.find(".name").html(card.name);
@@ -58,6 +58,19 @@ Pringle = {
       }
 
       return tmpl;
+    },
+    
+    status: function(card) {
+      return Mingle.property(card, "Story Status") || 
+             Mingle.property(card, "Defect Status") || 
+             Mingle.property(card, "Risk Status") || 
+             Mingle.property(card, "Feature Status");
+    },
+    
+    addToWall: function(card) {
+      var status = Pringle.Card.status(card);
+      var card = Pringle.Card.html(card);
+      Pringle.storyWall.swimlane(status).append(card);
     }
   },
   
@@ -77,6 +90,8 @@ Pringle = {
       
       Pringle.Window.adjustHeight();
       Pringle.Window.adjustLanes();
+      setInterval(Pringle.refreshCards, 10000);
+      
       $.unblockUI();
     }
   },
@@ -87,9 +102,7 @@ Pringle = {
       var template = $( $("#cardTemplate").html() );
       
       $(data.cards).each(function() {
-        var status = Mingle.property(this, "Story Status") || Mingle.property(this, "Defect Status") || Mingle.property(this, "Risk Status") || Mingle.property(this, "Feature Status");
-        var card = Pringle.Card.html(this);
-        Pringle.storyWall.swimlane(status).append(card);
+        Pringle.Card.addToWall(this);
       });
       
       Pringle.Lifecycle.endInit();
@@ -137,8 +150,53 @@ Pringle = {
   },
   
   refreshCards: function() {
-    $.blockUI();
-    Pringle.initCards();
+    $("#spinner").show();
+    
+    Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter, function(data) {
+      var htmlCards = $(".card");
+      var dataCards = $(data.cards);
+      
+      var htmlNumberFn = function() { return parseInt($(this).attr("id"), 10); };
+      var dataNumberFn = function() { return this.number; };
+      
+      var htmlNumbers = htmlCards.map(htmlNumberFn);
+      var dataNumbers = dataCards.map(dataNumberFn);
+      
+      var indexed = function(ary, fn) {
+        var newAry = [];
+        $(ary).each(function() {
+          newAry[fn.apply(this)] = this;
+        });
+        return newAry;
+      };
+      
+      var htmlCardsIdx = indexed(htmlCards, htmlNumberFn);
+      
+      $(htmlNumbers).not($(dataNumbers)).each(function() {
+        $(htmlCardsIdx[this]).remove();
+      });
+      
+      var dataCardsIdx = indexed(dataCards, dataNumberFn);
+      
+      $(dataNumbers).not($(htmlNumbers)).each(function() {
+        Pringle.Card.addToWall(dataCardsIdx[this]);
+      });
+      
+      $(dataNumbers).filter($(htmlNumbers)).each(function() {
+        var card = dataCardsIdx[this];
+        var html = $(htmlCardsIdx[this]);
+
+        if (html.dataset().modified !== card.modified_on) {
+          html.remove();
+          Pringle.Card.addToWall(card);
+        }
+      });
+      
+      Pringle.Window.adjustHeight();
+      Pringle.Window.adjustLanes();
+      
+      $("#spinner").hide();
+    });
   },
   
   Window: {
