@@ -26,10 +26,12 @@
         %tbody
           %tr
     #footer
-      %img{:src => "/images/tw_logo2.png"}
+      %a{:href => "/", :class => "logo"}
+        %img{:src => "/images/tw_logo3.png"}
       #options
         %form#cardFilter
-          %select{:name => "view"}
+          %label{:for => "selectView"} Cards:
+          %select{:id => "selectView", :name => "view"}
             %option{:value => ""} All
           %input{:type => "hidden", :name => "page", :value => "all"}
           %button{:type => "submit", :class => "refresh"} Refresh Story Wall

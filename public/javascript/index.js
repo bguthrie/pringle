@@ -29,7 +29,7 @@ $.fn.swimlane = function(laneName) {
 Pringle = {
   cardColors: {},
   storyWall: [],
-  cardFilter: "page=all",
+  cardFilter: "page=1",
   
   Card: {
     blank: function() {
@@ -148,6 +148,15 @@ $(document).ready(function() {
   $("select[name=view]").change(function() {
     $(this).closest("form").submit();
   })
+  
+  var $main = $("#main");
+  var $foot = $("#footer");
+  var adjustHeight = function() {
+    $main.css({ height: $(window).height() - $foot.height() - 1 });
+  }
+  
+  adjustHeight();
+  $(window).resize(adjustHeight);
   
   $(".refresh").click(function(e) {
     e.preventDefault();

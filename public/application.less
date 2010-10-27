@@ -36,28 +36,28 @@ body {
 
 #main {
   overflow-y: scroll;
-  height: 90%;
+  height: 94%;
 }
 
 #footer {
+  color: black;
+  font-size: small;
   position: absolute;
   width: 100%;
   bottom: 0px;
   left: 0px;
-  height: 50px;
-/*  background: white url('/images/tw_logo2.png') 4px left no-repeat;*/
+  height: 40px;
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #777777), color-stop(6%, #e0e0e0), color-stop(33%, #ffffff));
-  padding-top: 4px;
   
-  > img {
+  .logo {
     float: left;
     padding: 10px 10px 0px 10px;
-    height: 40px;
+    height: 30px;
   }
   
   #options {
     float: left;
-    padding-top: 14px;
+    padding-top: 8px;
     margin-left: 10px;
     input, form { display: inline; }
     
@@ -70,21 +70,19 @@ body {
     }
     
     button {
-/*      padding: 4px;
-      border: 1px solid #eee;
-      background-color: #ddd;
-      
+      -webkit-border-radius: 4px;
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D6D8D8), color-stop(50%,#e5ebee), color-stop(51%,#d7dee3), color-stop(100%,#BDBEBF));
       :hover {
-        background-color: #999;
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ADADAD), color-stop(50%,#D2D7D8), color-stop(51%,#A9AEB2), color-stop(100%,#838384));
       }
-*/    }
+    }
   }
   
   #spinner {
     display: none;
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    bottom: 6px;
+    right: 6px;
     background: url('/images/spinner.gif') bottom right no-repeat;
     width: 30px;
     height: 30px;
@@ -93,7 +91,6 @@ body {
 
 .card {
   -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
 
   width: 120px;
   float: left;
