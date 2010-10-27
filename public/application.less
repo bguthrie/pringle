@@ -23,17 +23,11 @@ body {
   padding: 0;
 }
 
-#status {
-  display: absolute;
-  top: 0px;
-  left: 0px;
-  padding: 8px;
-}
-
 #storyWall {
   border-collapse: collapse;
 
   .swimLane {
+    padding-top: 10px;
     border-right: 2px solid white;
     vertical-align: top;
     width: 130px;
@@ -51,27 +45,49 @@ body {
   bottom: 0px;
   left: 0px;
   height: 50px;
-  background: black url('/images/tw_logo.png') 4px left no-repeat;
-  border-top: 1px solid white;
+/*  background: white url('/images/tw_logo2.png') 4px left no-repeat;*/
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #777777), color-stop(6%, #e0e0e0), color-stop(33%, #ffffff));
+  padding-top: 4px;
+  
+  > img {
+    float: left;
+    padding: 10px 10px 0px 10px;
+    height: 40px;
+  }
   
   #options {
-    padding-top: 10px;
-    margin-left: 270px;
+    float: left;
+    padding-top: 14px;
+    margin-left: 10px;
     input, form { display: inline; }
     
     input[type=text] {
       padding: 4px;
     }
     
+    select[name=view] {
+      width: 200px;
+    }
+    
     button {
-      padding: 4px;
+/*      padding: 4px;
       border: 1px solid #eee;
       background-color: #ddd;
       
       :hover {
         background-color: #999;
       }
-    }
+*/    }
+  }
+  
+  #spinner {
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: url('/images/spinner.gif') bottom right no-repeat;
+    width: 30px;
+    height: 30px;
   }
 }
 

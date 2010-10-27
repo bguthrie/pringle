@@ -5,6 +5,8 @@
     %script{:type => "text/javascript", :src => "/javascript/jquery.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.dataset.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.template.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.blockUI.js"}
+    %script{:type => "text/javascript", :src => "/javascript/inputmultiselect-2.0.3.min.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
     %script{:id => "cardTemplate", :type => "text/html"}
       .card
@@ -17,7 +19,6 @@
           .owner
 
   %body
-    #status
     #main
       %table#storyWall
         %thead
@@ -25,8 +26,12 @@
         %tbody
           %tr
     #footer
+      %img{:src => "/images/tw_logo2.png"}
       #options
-        %form#selectFave
-          %input{:type => "text", :name => "favorite", :placeholder => "Select favorite"}
-          %button{:type => "submit"} Submit
-        %button{:type => "submit"} Refresh Story Wall
+        %form#cardFilter
+          %select{:name => "view"}
+            %option{:value => ""} All
+          %input{:type => "hidden", :name => "page", :value => "all"}
+          %button{:type => "submit", :class => "refresh"} Refresh Story Wall
+          
+      #spinner

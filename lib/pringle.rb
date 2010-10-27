@@ -31,7 +31,12 @@ class Pringle < Sinatra::Base
       status 404
       body ActiveSupport::JSON.encode(:error => "Not Found", :uri => mingle_uri)
     when 200
-      body ActiveSupport::JSON.encode(response.deserialise)
+      json = ActiveSupport::JSON.encode(response.deserialise)
+      if params[:callback]
+        body "#{params[:callback]}(#{json});"
+      else
+        body json
+      end
     else
       status response.code.to_i
       body ActiveSupport::JSON.encode(:error => "Unknown", :text => response.body)
