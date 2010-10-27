@@ -61,6 +61,26 @@ Pringle = {
     }
   },
   
+  Lifecycle: {
+    init: function() {
+      $.blockUI();
+      Pringle.storyWall = $("#storyWall");
+      Pringle.storyWall.hide();
+      Pringle.initProperties();
+      Pringle.initFavorites();
+    },
+    
+    endInit: function() {
+      // Order matters for these next few lines, unfortunately..
+      Pringle.storyWall.show();
+      Pringle.laneWidth = Pringle.storyWall.swimlanes().first().width();
+      
+      Pringle.Window.adjustHeight();
+      Pringle.Window.adjustLanes();
+      $.unblockUI();
+    }
+  },
+  
   initCards: function() {
     Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter, function(data) {
       Pringle.storyWall.swimlanes().find(".card").remove();
@@ -71,9 +91,8 @@ Pringle = {
         var card = Pringle.Card.html(this);
         Pringle.storyWall.swimlane(status).append(card);
       });
-
-      Pringle.storyWall.show();
-      $.unblockUI();
+      
+      Pringle.Lifecycle.endInit();
     });
   },
   
@@ -117,22 +136,38 @@ Pringle = {
     });
   },
   
-  init: function() {
-    $.blockUI();
-    Pringle.storyWall = $("#storyWall");
-    Pringle.storyWall.hide();
-    Pringle.initProperties();
-    Pringle.initFavorites();
-  },
-  
   refreshCards: function() {
     $.blockUI();
     Pringle.initCards();
+  },
+  
+  Window: {
+    adjustLanes: function() {
+      var lanes = Pringle.storyWall.swimlanes();
+      var numLanes = lanes.length;
+      var winWidth = $(window).width();
+      var maxNumLanes = winWidth / Pringle.laneWidth;
+
+      if (maxNumLanes > numLanes) {
+        var lanesToResize = maxNumLanes - numLanes;
+        var lanesSorted = lanes.sort(function(l1, l2) {
+          return $(l2).find(".card").length - $(l1).find(".card").length;
+        });
+
+        lanesSorted.slice(0, lanesToResize).css({ width: ( Pringle.laneWidth * 2 ) + 8 });
+      } else {
+        lanes.css({ width: Pringle.laneWidth });
+      }
+    },
+    
+    adjustHeight: function() {
+      $("#main").css({ height: $(window).height() - $("#footer").height() - 1 });
+    }
   }
 };
 
 $(document).ready(function() {
-  Pringle.init();
+  Pringle.Lifecycle.init();
   
   $("#cardFilter").submit(function(e) {
     e.preventDefault();
@@ -143,23 +178,15 @@ $(document).ready(function() {
     return false;
   });
   
-  // $("select[name=view]").inputmultiselect();
-  
-  $("select[name=view]").change(function() {
-    $(this).closest("form").submit();
-  })
-  
-  var $main = $("#main");
-  var $foot = $("#footer");
-  var adjustHeight = function() {
-    $main.css({ height: $(window).height() - $foot.height() - 1 });
-  }
-  
-  adjustHeight();
-  $(window).resize(adjustHeight);
-  
-  $(".refresh").click(function(e) {
+  var submitForm = function(e) { 
     e.preventDefault();
-    Pringle.refreshCards();
-  });
+    $(this).closest("form").submit();
+    return false;
+  };
+  
+  $("select[name=view]").change(submitForm);
+  $(".refresh").click(submitForm);
+  
+  $(window).resize(Pringle.Window.adjustHeight);
+  $(window).resize(Pringle.Window.adjustLanes);
 });
