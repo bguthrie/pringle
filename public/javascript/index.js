@@ -19,7 +19,7 @@ Mingle = {
 };
 
 $.fn.swimlanes = function() {
-  return $(this).find("tbody .swimlane");
+  return $(this).find(".swimlane");
 };
 
 $.fn.swimlane = function(laneName) {
@@ -29,7 +29,11 @@ $.fn.swimlane = function(laneName) {
 Pringle = {
   cardColors: {},
   storyWall: [],
-  cardFilter: "page=1",
+  defaultFilter: { page: 1 },
+  
+  cardFilter: function() {
+    return $.extend({}, Pringle.defaultFilter, $.bbq.getState());
+  },
   
   Card: {
     blank: function() {
@@ -37,7 +41,7 @@ Pringle = {
         Pringle.Card.template = $( $("#cardTemplate").html() );
       }
       
-      return $( $("#cardTemplate").html() ).clone();
+      return $(Pringle.Card.template).clone();
     },
     
     html: function(card) {
@@ -70,7 +74,36 @@ Pringle = {
     addToWall: function(card) {
       var status = Pringle.Card.status(card);
       var card = Pringle.Card.html(card);
-      Pringle.storyWall.swimlane(status).append(card);
+      console.log(Pringle.storyWall.swimlane(status).find(".cards"));
+      Pringle.storyWall.swimlane(status).find(".cards").append(card);
+    },
+    
+    removeAll: function() {
+      Pringle.storyWall.swimlanes().find(".card").remove();
+    }
+  },
+  
+  Swimlane: {
+    blank: function() {
+      if (!Pringle.Swimlane.template) {
+        Pringle.Swimlane.template = $( $("#laneTemplate").html() );
+      }
+      
+      return $(Pringle.Swimlane.template).clone();
+    },
+    
+    html: function(lane) {
+      var tmpl = Pringle.Swimlane.blank();
+      
+      tmpl.dataset({ name: lane.value });
+      tmpl.find(".name").html(lane.value);
+      
+      return tmpl;
+    },
+    
+    addToWall: function(lane) {
+      var lane = Pringle.Swimlane.html(lane);
+      Pringle.storyWall.append(lane);
     }
   },
   
@@ -79,7 +112,7 @@ Pringle = {
       $.blockUI();
       Pringle.storyWall = $("#storyWall");
       Pringle.storyWall.hide();
-      Pringle.initProperties();
+      Pringle.initSwimlanes();
       Pringle.initFavorites();
     },
     
@@ -97,9 +130,8 @@ Pringle = {
   },
   
   initCards: function() {
-    Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter, function(data) {
-      Pringle.storyWall.swimlanes().find(".card").remove();
-      var template = $( $("#cardTemplate").html() );
+    Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter(), function(data) {
+      Pringle.Card.removeAll();
       
       $(data.cards).each(function() {
         Pringle.Card.addToWall(this);
@@ -119,20 +151,11 @@ Pringle = {
     Pringle.initCards();
   },
   
-  initProperties: function() {
+  initSwimlanes: function() {
     Mingle.get("/projects/agile_hybrid/property_definitions/111", function(data) {
-      var template = $( $("#swimlaneTemplate").html() );
-
-      var headers = $(data.property_definition.property_value_details).map(function() {
-        return $("<th/>").addClass("swimLane").html(this.value).dataset({name: this.value});
+      var items = $(data.property_definition.property_value_details).map(function() {
+        Pringle.Swimlane.addToWall(this);
       });
-
-      var emptyCols = $(data.property_definition.property_value_details).map(function() {
-        return $("<td>&nbsp;</td>").addClass("swimLane").dataset({name: this.value});
-      });
-
-      $(headers).appendTo(Pringle.storyWall.find("thead tr"));
-      $(emptyCols).appendTo(Pringle.storyWall.find("tbody tr"));
 
       Pringle.initCardColors();
     });
@@ -152,7 +175,7 @@ Pringle = {
   refreshCards: function() {
     $("#spinner").show();
     
-    Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter, function(data) {
+    Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter(), function(data) {
       var htmlCards = $(".card");
       var dataCards = $(data.cards);
       
@@ -200,26 +223,33 @@ Pringle = {
   },
   
   Window: {
+    resetLanes: function() {
+      var resetWidth = Pringle.storyWall.hasClass("horizontal") ? "100%" : Pringle.laneWidth
+      Pringle.storyWall.swimlanes().css({ width: resetWidth });
+    },
+    
     adjustLanes: function() {
-      var lanes = Pringle.storyWall.swimlanes();
-      var numLanes = lanes.length;
-      var winWidth = $(window).width();
-      var maxNumLanes = winWidth / Pringle.laneWidth;
+      Pringle.Window.resetLanes();
+      
+      if (Pringle.storyWall.hasClass("vertical")) {
+        var lanes = Pringle.storyWall.swimlanes();
+        var numLanes = lanes.length;
+        var winWidth = Pringle.storyWall.width();
+        var maxNumLanes = winWidth / Pringle.laneWidth;
 
-      if (maxNumLanes > numLanes) {
-        var lanesToResize = maxNumLanes - numLanes;
-        var lanesSorted = lanes.sort(function(l1, l2) {
-          return $(l2).find(".card").length - $(l1).find(".card").length;
-        });
+        if (maxNumLanes > numLanes) {
+          var lanesToResize = maxNumLanes - numLanes;
+          var lanesSorted = lanes.sort(function(l1, l2) {
+            return $(l2).find(".card").length - $(l1).find(".card").length;
+          });
 
-        lanesSorted.slice(0, lanesToResize).css({ width: ( Pringle.laneWidth * 2 ) + 8 });
-      } else {
-        lanes.css({ width: Pringle.laneWidth });
+          lanesSorted.slice(0, lanesToResize).css({ width: ( Pringle.laneWidth * 2 ) });
+        }
       }
     },
     
     adjustHeight: function() {
-      $("#main").css({ height: $(window).height() - $("#footer").height() - 1 });
+      Pringle.storyWall.css({ height: $(window).height() - $("#footer").height() - 30 });
     }
   }
 };
@@ -228,23 +258,24 @@ $(document).ready(function() {
   Pringle.Lifecycle.init();
   
   $("#cardFilter").submit(function(e) {
+    var newParams = $.deparam($(this).serialize());
+    $.bbq.pushState(newParams);
     e.preventDefault();
-        
-    Pringle.cardFilter = $(this).serialize();
-    Pringle.refreshCards();
-    
     return false;
+  }).find("select, input").change(function(e) {
+    $(this).closest("form").submit(); 
+    e.preventDefault();
   });
   
-  var submitForm = function(e) { 
-    e.preventDefault();
-    $(this).closest("form").submit();
-    return false;
-  };
-  
-  $("select[name=view]").change(submitForm);
-  $(".refresh").click(submitForm);
+  $("#pringleView").change(function() {
+    Pringle.storyWall.attr("class", $(this).val());
+    Pringle.Window.adjustLanes();
+  });
   
   $(window).resize(Pringle.Window.adjustHeight);
   $(window).resize(Pringle.Window.adjustLanes);
+  
+  $(window).bind("hashchange", function(e) {
+    Pringle.refreshCards();
+  });
 });

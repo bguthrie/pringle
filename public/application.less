@@ -1,7 +1,7 @@
 body {
+  font-family: Helvetica, Arial, sans-serif;
   background: black;
   color: white;
-  font-family: Helvetica, Arial, sans-serif;
 }
 
 ul,
@@ -23,20 +23,168 @@ body {
   padding: 0;
 }
 
-#storyWall {
-  border-collapse: collapse;
+#heading {
+  margin: 8px 0px 8px 32px;
+  font-weight: normal;
+}
 
-  .swimLane {
-    padding-top: 10px;
-    border-right: 2px solid white;
-    vertical-align: top;
+#storyWall {
+  height: 300px;
+  list-style-type: none;
+  margin: 10px 10px 0px 10px;
+  background-color: #111;
+  -webkit-border-radius: 8px;
+}
+
+#storyWall.horizontal {
+  .swimlane {
+    display: inline;
+    width: 100%;
+    border-bottom: 2px solid black;
+    float: left;
+    clear: both;
+    
+    > .header {
+      -webkit-border-radius: 4px;
+      background-color: #222;
+      padding: 4px;
+      text-align: center;
+      margin: 8px;
+      float: left;
+      width: 100px;
+    }
+    
+    .cards {
+      float: left;
+      width: 90%;
+    }
+  }
+  
+  .card {
+    -webkit-border-radius: 8px;
+    float: left;
+    margin: 8px;
+
+    .header {
+      -webkit-border-top-left-radius: 6px;
+      -webkit-border-bottom-left-radius: 6px;
+      background-color: black;
+      color: white;
+      opacity: 0.8;
+      font-size: small;
+      float: left;
+      padding: 4px 8px;
+      height: 16px;
+    }
+
+    .body {
+      -webkit-border-top-right-radius: 6 fpx;
+      overflow: hidden;
+      width: 260px;
+      height: 12px;
+      padding: 4px;
+      margin: 0px 0px 4px 0px;
+      font-size: small;
+      color: black;
+      background-color: white;
+      opacity: 0.8;
+    }
+    
+    .footer {
+      display: none;
+    }
+
+    .owner {
+      display: none;
+    }
+
+    .type {
+      display: none;
+    }
+  }
+}
+
+#storyWall.vertical {
+  .swimlane {
+    display: block;
     width: 130px;
+    float: left;
+    border-right: 2px solid black;
+    height: 100%;
+    
+    > .header {
+      -webkit-border-radius: 4px;
+      background-color: #222;
+      padding: 4px;
+      text-align: center;
+      margin: 8px;
+    }
+    
+    .cards {
+      height: 90%;
+      overflow: hidden;
+    }
+  }
+  
+  .card {
+    -webkit-border-radius: 4px;
+
+    width: 114px;
+    float: left;
+    height: 100px;
+    margin: 8px;
+
+    .header {
+      background-color: black;
+      color: white;
+      opacity: 0.8;
+      font-size: small;
+      padding: 4px;
+      height: 15px;
+    }
+
+    .body {
+      font-size: x-small;
+      background-color: white;
+      opacity: 0.8;
+      color: black;
+      padding: 4px;
+      overflow: hidden;
+      height: 60px;
+
+      > div {
+        padding-top: 2px;
+      }
+
+      .name {
+        font-size: small;
+      }
+    }
+
+    .footer {
+      color: black;
+      text-align: right;
+      font-size: xx-small;
+      padding: 4px 2px 2px 0px;
+      font-weight: bold;
+      height: 15px;
+    }
+
+    .owner {
+      font-weight: bold;
+    }
+
+    .type {
+      color: #999;
+    }
+  }
+
+  .card.blocked {
   }
 }
 
 #main {
-  overflow-y: scroll;
-  height: 94%;
+  overflow: hidden;
 }
 
 #footer {
@@ -86,60 +234,4 @@ body {
     width: 30px;
     height: 20px;
   }
-}
-
-.card {
-  -webkit-border-radius: 4px;
-
-  width: 120px;
-  float: left;
-  margin: 8px;
-  height: 100px;
-
-  .header {
-    background-color: black;
-    color: white;
-    opacity: 0.8;
-    font-size: small;
-    padding: 4px;
-    height: 15px;
-  }
-
-  .body {
-    font-size: x-small;
-    background-color: white;
-    opacity: 0.8;
-    color: black;
-    padding: 4px;
-    overflow: hidden;
-    height: 50px;
-
-    > div {
-      padding-top: 2px;
-    }
-
-    .name {
-      font-size: small;
-    }
-  }
-
-  .footer {
-    color: black;
-    text-align: right;
-    font-size: xx-small;
-    padding: 4px 2px 2px 0px;
-    font-weight: bold;
-    height: 15px;
-  }
-
-  .owner {
-    font-weight: bold;
-  }
-
-  .type {
-    color: #999;
-  }
-}
-
-.card.blocked {
 }

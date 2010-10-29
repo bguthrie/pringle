@@ -6,6 +6,7 @@
     %script{:type => "text/javascript", :src => "/javascript/jquery.dataset.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.template.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.blockUI.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.ba-bbq.js"}
     %script{:type => "text/javascript", :src => "/javascript/inputmultiselect-2.0.3.min.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
     %script{:id => "cardTemplate", :type => "text/html"}
@@ -17,23 +18,29 @@
           .type
         .footer
           .owner
+    %script{:id => "laneTemplate", :type => "text/html"}
+      %li.swimlane
+        .header
+          .name
+        .cards
 
   %body
     #main
-      %table#storyWall
-        %thead
-          %tr
-        %tbody
-          %tr
+      %h1#heading Agile Hybrid
+      %ul#storyWall.vertical
     #footer
       %a{:href => "/", :class => "logo"}
         %img{:src => "/images/tw_logo3.png"}
       #options
+        %label{:for => "pringleView"} View:
+        %select{:id => "pringleView"}
+          %option{:value => "vertical"} Vertical Story Wall
+          %option{:value => "horizontal"} Horizontal Story Wall
+          
         %form#cardFilter
-          %label{:for => "selectView"} Cards:
-          %select{:id => "selectView", :name => "view"}
+          %label{:for => "viewFilter"} Cards:
+          %select{:id => "viewFilter", :name => "view"}
             %option{:value => ""} All
           %input{:type => "hidden", :name => "page", :value => "all"}
           %button{:type => "submit", :class => "refresh"} Refresh Story Wall
-          
       #spinner
