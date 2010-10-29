@@ -32,10 +32,14 @@
       %a{:href => "/", :class => "logo"}
         %img{:src => "/images/tw_logo3.png"}
       #options
-        %label{:for => "pringleView"} View:
-        %select{:id => "pringleView"}
-          %option{:value => "vertical"} Vertical Story Wall
-          %option{:value => "horizontal"} Horizontal Story Wall
+        %form#pringleOptions
+          %label{:for => "pringleView"} View:
+          %select{:id => "pringleView"}
+            %option{:value => "vertical"} Vertical Story Wall
+            %option{:value => "horizontal"} Horizontal Story Wall
+            
+          %input{:type => "checkbox", :value => 1, :id => "shouldRefresh", :name => "shouldRefresh", :checked => "checked"}
+          %label{:for => "shouldRefresh"} Keep synchronized
           
         %form#cardFilter
           %label{:for => "viewFilter"} Cards:

@@ -74,7 +74,6 @@ Pringle = {
     addToWall: function(card) {
       var status = Pringle.Card.status(card);
       var card = Pringle.Card.html(card);
-      console.log(Pringle.storyWall.swimlane(status).find(".cards"));
       Pringle.storyWall.swimlane(status).find(".cards").append(card);
     },
     
@@ -117,15 +116,18 @@ Pringle = {
     },
     
     endInit: function() {
-      // Order matters for these next few lines, unfortunately..
+      // Order matters for these next few lines, unfortunately.
       Pringle.storyWall.show();
       Pringle.laneWidth = Pringle.storyWall.swimlanes().first().width();
       
       Pringle.Window.adjustHeight();
       Pringle.Window.adjustLanes();
-      setInterval(Pringle.refreshCards, 10000);
+      setInterval(function() {
+        if ($("#shouldRefresh").is("[checked]")) Pringle.refreshCards;
+      }, 10000);
       
       $.unblockUI();
+      Pringle.storyWall.fadeIn();
     }
   },
   
@@ -268,8 +270,13 @@ $(document).ready(function() {
   });
   
   $("#pringleView").change(function() {
-    Pringle.storyWall.attr("class", $(this).val());
-    Pringle.Window.adjustLanes();
+    var orientation = $(this).val();
+    
+    Pringle.storyWall.fadeOut({complete: function() {
+      Pringle.storyWall.attr("class", orientation);
+      Pringle.Window.adjustLanes();
+      Pringle.storyWall.fadeIn();
+    }});
   });
   
   $(window).resize(Pringle.Window.adjustHeight);
