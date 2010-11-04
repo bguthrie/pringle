@@ -23,168 +23,211 @@ body {
   padding: 0;
 }
 
-#heading {
-  margin: 8px 0px 8px 32px;
-  font-weight: normal;
-}
-
-#storyWall {
-  height: 300px;
+ul, li {
   list-style-type: none;
-  margin: 10px 10px 0px 10px;
-  background-color: #111;
-  -webkit-border-radius: 8px;
 }
 
-#storyWall.horizontal {
-  .swimlane {
-    display: inline;
-    width: 100%;
-    border-bottom: 4px solid black;
-    float: left;
-    clear: both;
-    
-    > .header {
-      -webkit-border-radius: 4px;
-      background-color: #222;
-      padding: 4px;
-      text-align: center;
-      margin: 8px;
-      float: left;
-      width: 100px;
-    }
-    
-    .cards {
-      float: left;
-      width: 90%;
-    }
-  }
+#content {
+  position: relative;
+  display: none;
   
-  .card {
-    -webkit-border-radius: 8px;
-    float: left;
-    margin: 8px;
-
-    .header {
-      -webkit-border-top-left-radius: 6px;
-      -webkit-border-bottom-left-radius: 6px;
-      background-color: black;
-      color: white;
-      opacity: 0.8;
-      font-size: small;
-      float: left;
-      padding: 4px 8px;
-      height: 16px;
-    }
-
-    .body {
-      -webkit-border-top-right-radius: 6 fpx;
-      overflow: hidden;
-      width: 260px;
-      height: 12px;
-      padding: 4px;
-      margin: 0px 0px 4px 0px;
-      font-size: small;
-      color: black;
-      background-color: white;
-      opacity: 0.8;
-    }
-    
-    .footer {
-      display: none;
-    }
-
-    .owner {
-      display: none;
-    }
-
-    .type {
-      display: none;
-    }
+  .heading {
+    margin: 8px 0px 8px 32px;
+    font-weight: normal;
+    font-size: xx-large;
   }
 }
 
-#storyWall.vertical {
-  .swimlane {
-    display: block;
-    width: 130px;
-    float: left;
-    border-right: 4px solid black;
-    height: 100%;
+#content.storyWall {
+  .legend {
+    display: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 15px;
     
-    > .header {
-      -webkit-border-radius: 4px;
-      background-color: #222;
-      padding: 4px;
-      text-align: center;
-      margin: 8px;
-    }
-    
-    .cards {
-      height: 90%;
-      overflow: hidden;
-    }
-  }
-  
-  .card {
+    margin: 4px 10px 0px 10px;
+    background-color: #111;
     -webkit-border-radius: 4px;
-
-    width: 114px;
-    float: left;
-    height: 100px;
-    margin: 8px;
-
-    .header {
-      background-color: black;
-      color: white;
-      opacity: 0.8;
-      font-size: small;
-      padding: 4px;
-      height: 15px;
-    }
-
-    .body {
-      font-size: x-small;
-      background-color: white;
-      opacity: 0.8;
-      color: black;
-      padding: 4px;
-      overflow: hidden;
-      height: 60px;
-
-      > div {
-        padding-top: 2px;
+    float: right;
+    width: 400px;
+    padding: 10px;
+    
+    .legendKey {
+      float: left;
+      margin-right: 8px;
+      
+      .color {
+        -webkit-border-radius: 2px;
+        float: left;
+        width: 10px;
+        height: 10px;
       }
-
+      
       .name {
-        font-size: small;
+        padding-left: 4px;
+        font-size: x-small;
+        float: left;
+      }
+    }
+  }
+  
+  .wall {
+    height: 300px;
+    margin: 10px 10px 0px 10px;
+    background-color: #111;
+    -webkit-border-radius: 4px;
+  }
+  
+  .wall.horizontal {
+    .swimlane {
+      display: inline;
+      width: 100%;
+      border-bottom: 4px solid black;
+      float: left;
+      clear: both;
+
+      > .header {
+        -webkit-border-radius: 4px;
+        border: 1px solid black;
+        background-color: #222;
+        padding: 4px;
+        text-align: center;
+        margin: 8px;
+        float: left;
+        width: 100px;
+      }
+
+      .cards {
+        float: left;
+        width: 90%;
+      }
+      
+      .card {
+        -webkit-border-radius: 4px;
+        float: left;
+        margin: 8px;
+
+        .header {
+          -webkit-border-top-left-radius: 4px;
+          -webkit-border-bottom-left-radius: 4px;
+          background-color: black;
+          color: white;
+          opacity: 0.8;
+          font-size: small;
+          float: left;
+          padding: 4px 8px;
+          height: 16px;
+        }
+
+        .body {
+          -webkit-border-top-right-radius: 4px;
+          overflow: hidden;
+          width: 260px;
+          height: 12px;
+          padding: 4px;
+          margin: 0px 0px 4px 0px;
+          font-size: small;
+          color: black;
+          background-color: white;
+          opacity: 0.8;
+        }
+
+        .footer {
+          display: none;
+        }
+
+        .owner {
+          display: none;
+        }
+
+        .type {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .wall.vertical {
+    overflow: hidden;
+    
+    .swimlane {
+      display: block;
+      width: 130px;
+      float: left;
+      border-right: 4px solid black;
+      height: 100%;
+
+      > .header {
+        -webkit-border-radius: 4px;
+        background-color: #222;
+        padding: 4px;
+        text-align: center;
+        margin: 8px;
+      }
+
+      .cards {
+        height: 90%;
+        overflow: hidden;
       }
     }
 
-    .footer {
-      color: black;
-      text-align: right;
-      font-size: xx-small;
-      padding: 4px 2px 2px 0px;
-      font-weight: bold;
-      height: 15px;
+    .card {
+      -webkit-border-radius: 4px;
+
+      width: 114px;
+      float: left;
+      height: 100px;
+      margin: 8px;
+
+      .header {
+        background-color: black;
+        color: white;
+        opacity: 0.8;
+        font-size: small;
+        padding: 4px;
+        height: 15px;
+      }
+
+      .body {
+        font-size: x-small;
+        background-color: white;
+        opacity: 0.8;
+        color: black;
+        padding: 4px;
+        overflow: hidden;
+        height: 60px;
+
+        > div {
+          padding-top: 2px;
+        }
+
+        .name {
+          font-size: small;
+        }
+      }
+
+      .footer {
+        color: black;
+        text-align: right;
+        font-size: xx-small;
+        padding: 4px 2px 2px 0px;
+        font-weight: bold;
+        height: 15px;
+      }
+
+      .owner {
+        font-weight: bold;
+      }
+
+      .type {
+        color: #999;
+      }
     }
 
-    .owner {
-      font-weight: bold;
-    }
-
-    .type {
-      color: #999;
+    .card.blocked {
     }
   }
-
-  .card.blocked {
-  }
-}
-
-#main {
-  overflow: hidden;
 }
 
 #footer {

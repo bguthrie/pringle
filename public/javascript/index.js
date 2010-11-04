@@ -1,288 +1,284 @@
-Mingle = {
+var Mingle = {
   get: function(path, params, fn) {
     if (typeof params === "function") {
       fn = params;
       params = {};
     }
 
-    var params = typeof(params) == "string" ? params : $.param(params || {});
+    var params = typeof(params) === "string" ? params : $.param(params || {});
     $.get("/mingle", { path: path, params: params }, fn, "jsonp");
   },
-
-  property: function(card, propName) {
-    var property = null;
-    $(card.properties).each(function() {
-      if (this.name === propName) { property = this; }
-    });
-    return property ? property.value : null;
-  }
-};
-
-$.fn.swimlanes = function() {
-  return $(this).find(".swimlane");
-};
-
-$.fn.swimlane = function(laneName) {
-  return $(this).swimlanes().filter("[data-name='" + laneName + "']");
-};
-
-Pringle = {
-  cardColors: {},
-  storyWall: [],
-  defaultFilter: { page: 1 },
   
-  cardFilter: function() {
-    return $.extend({}, Pringle.defaultFilter, $.bbq.getState());
-  },
-  
-  Card: {
-    blank: function() {
-      if (!Pringle.Card.template) {
-        Pringle.Card.template = $( $("#cardTemplate").html() );
-      }
-      
-      return $(Pringle.Card.template).clone();
-    },
-    
-    html: function(card) {
-      var tmpl = Pringle.Card.blank();
-      
-      tmpl.dataset({ type: card.card_type.name, modified: card.modified_on });
-      tmpl.attr("id", card.number);
-      
-      tmpl.find(".number").html("#" + card.number);
-      tmpl.find(".name").html(card.name);
-      tmpl.find(".type").html(card.card_type.name);
-      tmpl.find(".owner").html( (Mingle.property(card, "Owner") || {}).name );
-      
-      tmpl.css({ backgroundColor: Pringle.cardColors[card.card_type.name] });
-
-      if (Mingle.property(card, "Blocked") === "Yes") {
-        tmpl.addClass("blocked");
-      }
-
-      return tmpl;
-    },
-    
-    status: function(card) {
-      return Mingle.property(card, "Story Status") || 
-             Mingle.property(card, "Defect Status") || 
-             Mingle.property(card, "Risk Status") || 
-             Mingle.property(card, "Feature Status");
-    },
-    
-    addToWall: function(card) {
-      var status = Pringle.Card.status(card);
-      var card = Pringle.Card.html(card);
-      Pringle.storyWall.swimlane(status).find(".cards").append(card);
-    },
-    
-    removeAll: function() {
-      Pringle.storyWall.swimlanes().find(".card").remove();
-    }
-  },
-  
-  Swimlane: {
-    blank: function() {
-      if (!Pringle.Swimlane.template) {
-        Pringle.Swimlane.template = $( $("#laneTemplate").html() );
-      }
-      
-      return $(Pringle.Swimlane.template).clone();
-    },
-    
-    html: function(lane) {
-      var tmpl = Pringle.Swimlane.blank();
-      
-      tmpl.dataset({ name: lane.value });
-      tmpl.find(".name").html(lane.value);
-      
-      return tmpl;
-    },
-    
-    addToWall: function(lane) {
-      var lane = Pringle.Swimlane.html(lane);
-      Pringle.storyWall.append(lane);
-    }
-  },
-  
-  Lifecycle: {
-    init: function() {
-      $.blockUI();
-      Pringle.storyWall = $("#storyWall");
-      Pringle.storyWall.hide();
-      Pringle.initSwimlanes();
-      Pringle.initFavorites();
-    },
-    
-    endInit: function() {
-      // Order matters for these next few lines, unfortunately.
-      Pringle.storyWall.show();
-      Pringle.laneWidth = Pringle.storyWall.swimlanes().first().width();
-      
-      Pringle.Window.adjustHeight();
-      Pringle.Window.adjustLanes();
-      setInterval(function() {
-        if ($("#shouldRefresh").is("[checked]")) Pringle.refreshCards;
-      }, 10000);
-      
-      $.unblockUI();
-      Pringle.storyWall.fadeIn();
-    }
-  },
-  
-  initCards: function() {
-    Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter(), function(data) {
-      Pringle.Card.removeAll();
-      
-      $(data.cards).each(function() {
-        Pringle.Card.addToWall(this);
+  cardMethods: {
+    property: function(propName) {
+      var property = null;
+      $(this.properties).each(function() {
+        if (this.name === propName) { property = this; }
       });
-      
-      Pringle.Lifecycle.endInit();
-    });
-  },
-  
-  initCardColors: function() {
-    Mingle.get("/projects/agile_hybrid/card_types", function(data) {
-      $(data.card_types).each(function() {
-        Pringle.cardColors[this.name] = this.color;
-      });
-    });
-
-    Pringle.initCards();
-  },
-  
-  initSwimlanes: function() {
-    Mingle.get("/projects/agile_hybrid/property_definitions/111", function(data) {
-      var items = $(data.property_definition.property_value_details).map(function() {
-        Pringle.Swimlane.addToWall(this);
-      });
-
-      Pringle.initCardColors();
-    });
-  },
-  
-  initFavorites: function() {
-    var option = $("<option></option>");
-    var select = $("select[name=view]");
-    
-    Mingle.get("/projects/agile_hybrid/favorites", function(data) {
-      $(data.favorites).each(function() {
-        select.append(option.clone().attr("value", this.name).html(this.name));
-      });
-    });
-  },
-  
-  refreshCards: function() {
-    $("#spinner").show();
-    
-    Mingle.get("/projects/agile_hybrid/cards", Pringle.cardFilter(), function(data) {
-      var htmlCards = $(".card");
-      var dataCards = $(data.cards);
-      
-      var htmlNumberFn = function() { return parseInt($(this).attr("id"), 10); };
-      var dataNumberFn = function() { return this.number; };
-      
-      var htmlNumbers = htmlCards.map(htmlNumberFn);
-      var dataNumbers = dataCards.map(dataNumberFn);
-      
-      var indexed = function(ary, fn) {
-        var newAry = [];
-        $(ary).each(function() {
-          newAry[fn.apply(this)] = this;
-        });
-        return newAry;
-      };
-      
-      var htmlCardsIdx = indexed(htmlCards, htmlNumberFn);
-      
-      $(htmlNumbers).not($(dataNumbers)).each(function() {
-        $(htmlCardsIdx[this]).remove();
-      });
-      
-      var dataCardsIdx = indexed(dataCards, dataNumberFn);
-      
-      $(dataNumbers).not($(htmlNumbers)).each(function() {
-        Pringle.Card.addToWall(dataCardsIdx[this]);
-      });
-      
-      $(dataNumbers).filter($(htmlNumbers)).each(function() {
-        var card = dataCardsIdx[this];
-        var html = $(htmlCardsIdx[this]);
-
-        if (html.dataset().modified !== card.modified_on) {
-          html.remove();
-          Pringle.Card.addToWall(card);
-        }
-      });
-      
-      Pringle.Window.adjustHeight();
-      Pringle.Window.adjustLanes();
-      
-      $("#spinner").hide();
-    });
-  },
-  
-  Window: {
-    resetLanes: function() {
-      var resetWidth = Pringle.storyWall.hasClass("horizontal") ? "100%" : Pringle.laneWidth
-      Pringle.storyWall.swimlanes().css({ width: resetWidth });
+      return property ? property.value : null;
     },
     
-    adjustLanes: function() {
-      Pringle.Window.resetLanes();
-      
-      if (Pringle.storyWall.hasClass("vertical")) {
-        var lanes = Pringle.storyWall.swimlanes();
-        var numLanes = lanes.length;
-        var winWidth = Pringle.storyWall.width();
-        var maxNumLanes = winWidth / Pringle.laneWidth;
-
-        if (maxNumLanes > numLanes) {
-          var lanesToResize = maxNumLanes - numLanes;
-          var lanesSorted = lanes.sort(function(l1, l2) {
-            return $(l2).find(".card").length - $(l1).find(".card").length;
-          });
-
-          lanesSorted.slice(0, lanesToResize).css({ width: ( Pringle.laneWidth * 2 ) });
-        }
-      }
-    },
-    
-    adjustHeight: function() {
-      Pringle.storyWall.css({ height: $(window).height() - $("#footer").height() - 30 });
+    status: function() {
+      return this.property("Story Status") || this.property("Defect Status") ||
+             this.property("Risk Status") || this.property("Feature Status");
     }
   }
 };
+
+$.extend($.fn, {
+  getProject: function(name) {
+    return $(this).each(function() {
+      var elt = $(this);
+      elt.dataset("project-name", name);
+
+      Mingle.get("/projects/" + name, function(data) {
+        elt.trigger("project", [ data ]);
+      });
+      
+      elt.getCardTypes().getStatuses(111).getCards();
+    })
+  },
+  
+  getCardTypes: function() {
+    return $(this).each(function() {
+      var elt = $(this);
+      var project = elt.dataset("project-name");
+
+      Mingle.get("/projects/" + project + "/card_types", function(data) {
+        elt.trigger("cardTypes", [ data ]);
+      });
+    })
+  },
+  
+  getStatuses: function(definitionId) {
+    return $(this).each(function() {
+      var elt = $(this);
+      var project = elt.dataset("project-name");
+    
+      Mingle.get("/projects/" + project + "/property_definitions/" + definitionId, function(data) {
+        elt.trigger("statuses", [ data ]);
+      });
+    });
+  },
+  
+  getCards: function(params) {
+    return $(this).each(function() {
+      if (!$.isPlainObject(params)) {
+        params = { page: 1 };
+      }
+    
+      var elt = $(this);
+      var project = elt.dataset("project-name");
+    
+      Mingle.get("/projects/" + project + "/cards", params, function(data) {
+        $(data.cards).each(function() {
+          $.extend(this, Mingle.cardMethods);
+        })
+        
+        elt.trigger("cards", [ data ]);
+      });
+    });
+  }
+});
+
+$.widget("pringle.storywall", {
+  options: {
+    orientation: "vertical",
+    hidden: false,
+    laneWidth: 130
+  },
+  
+  _create: function() {
+    var self = this;
+    
+    this.element.find(".legend").legend();
+    this.element.find(".wall").swimlanes();
+    
+    $(window).resize(function(evt) { self._resize(); });
+    
+    $(document).bind("project", function(evt, data) {
+      self._setProject(data.project);
+    });
+    
+    $(document).bind("cards", function(evt, data) { self._resize(); });
+  },
+  
+  _setProject: function(project) {
+    this.options.project = project;
+    this.element.find(".heading").html(this.options.project.name);
+    this.show();
+  },
+  
+  _setStatuses: function(statuses) {
+    this.element.find(".wall").swimlanes({ statuses: statuses });
+  },
+  
+  _resize: function() {
+    this.element.find(".wall").css({ height: $(window).height() - $("#footer").height() - 30 });
+    
+    if (this.options.orientation === "vertical") {
+      var lanes = this.element.find(".swimlane");
+      var numLanes = lanes.length;
+      var winWidth = this.element.width();
+      var maxNumLanes = winWidth / this.options.laneWidth;
+      var lanesToResize = maxNumLanes - numLanes;
+      var lanesSorted = lanes.sort(function(l1, l2) {
+        return $(l2).find(".card").length - $(l1).find(".card").length;
+      });
+      
+      lanesSorted.slice(0, lanesToResize).css({ width: ( this.options.laneWidth * 2 ) });
+      lanesSorted.slice(lanesToResize, -1).css({ width: this.options.laneWidth });
+    }
+  },
+  
+  orientation: function(newOrientation) {
+    console.log("changing to " + newOrientation);
+    var wall = this.element.find(".wall");
+    console.log(wall.attr("class"));
+    wall.removeClass("horizontal").removeClass("vertical").addClass(newOrientation);
+    console.log(wall.attr("class"));
+  },
+  
+  hide: function(event, ui) {
+    this.element.fadeOut();
+  },
+  
+  show: function(event, ui) {
+    this.element.fadeIn();
+  }
+});
+
+$.widget("pringle.swimlanes", {
+  options: {
+    template: "#laneTemplate",
+    cardTemplate: "#cardTemplate"
+  },
+  
+  _create: function() {
+    var self = this;
+    
+    $(document).bind("statuses", function(evt, data) {
+      self._setStatuses(data.property_definition.property_value_details);
+    });
+    
+  },
+  
+  _setStatuses: function(statuses) {
+    var self = this;
+    
+    $(statuses).each(function() {
+      $(self.options.template).tmpl(this).appendTo(self.element);
+      self.element.find(".cards").cards();
+    });
+  }
+});
+
+$.widget("pringle.cards", {
+  options: {
+    template: "#cardTemplate"
+  },
+  
+  _create: function() {
+    this.options.name = this.element.closest(".swimlane").dataset("name");
+    var self = this;
+    
+    $(document).bind("cards", function(evt, data) {
+      var cards = $(data.cards).filter(function() {
+        return this.status() == self.options.name;
+      });
+      
+      self._setCards(cards);
+    });
+  },
+  
+  _setCards: function(cards) {
+    var self = this;
+    
+    $(cards).each(function() {
+      var color = $(".legend").legend('colorFor', this.card_type.name);
+      $(self.options.template).tmpl(this).css({ display: "none", backgroundColor: color }).appendTo(self.element).fadeIn();
+    });
+  }
+});
+
+$.widget("pringle.legend", {
+  options: {
+    template: "#legendKeyTemplate"
+  },
+  
+  _create: function() {
+    var self = this;
+    
+    $(document).bind("cardTypes", function(evt, data) {
+      self._setCardTypes(data.card_types);
+    });
+    
+    self.show();
+  },
+  
+  _setCardTypes: function(cardTypes) {
+    var self = this;
+    
+    $(cardTypes).each(function() {
+      $(self.options.template).tmpl(this).appendTo(self.element);
+    });
+  },
+  
+  hide: function(event, ui) {
+    this.element.fadeOut();
+  },
+  
+  show: function(event, ui) {
+    this.element.fadeIn();
+  },
+  
+  colorFor: function(typeName) {
+    return this.element.find(".legendKey[data-name='" + typeName + "']").dataset("color");
+  }
+});
 
 $(document).ready(function() {
-  Pringle.Lifecycle.init();
-  
-  $("#cardFilter").submit(function(e) {
-    var newParams = $.deparam($(this).serialize());
-    $.bbq.pushState(newParams);
-    e.preventDefault();
-    return false;
-  }).find("select, input").change(function(e) {
-    $(this).closest("form").submit(); 
-    e.preventDefault();
-  });
+  $(document).getProject("agile_hybrid");
+  $(".storyWall").storywall();
   
   $("#pringleView").change(function() {
-    var orientation = $(this).val();
-    
-    Pringle.storyWall.fadeOut({complete: function() {
-      Pringle.storyWall.attr("class", orientation);
-      Pringle.Window.adjustLanes();
-      Pringle.storyWall.fadeIn();
-    }});
-  });
-  
-  $(window).resize(Pringle.Window.adjustHeight);
-  $(window).resize(Pringle.Window.adjustLanes);
-  
-  $(window).bind("hashchange", function(e) {
-    Pringle.refreshCards();
+    $(".storyWall").storywall("orientation", $(this).val());
   });
 });
+
+// //   initFavorites: function() {
+// //     var option = $("<option></option>");
+// //     var select = $("select[name=view]");
+// //     
+// //     Mingle.get("/projects/agile_hybrid/favorites", function(data) {
+// //       $(data.favorites).each(function() {
+// //         select.append(option.clone().attr("value", this.name).html(this.name));
+// //       });
+// //     });
+// //   },
+
+// // $(document).ready(function() {
+// //   $("#cardFilter").submit(function(e) {
+// //     var newParams = $.deparam($(this).serialize());
+// //     $.bbq.pushState(newParams);
+// //     e.preventDefault();
+// //     return false;
+// //   }).find("select, input").change(function(e) {
+// //     $(this).closest("form").submit(); 
+// //     e.preventDefault();
+// //   });
+// //   
+// //   $("#pringleView").change(function() {
+// //     var orientation = $(this).val();
+// //     
+// //     Pringle.storyWall.fadeOut({complete: function() {
+// //       Pringle.storyWall.attr("class", orientation);
+// //       Pringle.Window.adjustLanes();
+// //       Pringle.storyWall.fadeIn();
+// //     }});
+// //   });
+// //   
+// //   $(window).bind("hashchange", function(e) {
+// //     Pringle.refreshCards();
+// //   });
+// // });

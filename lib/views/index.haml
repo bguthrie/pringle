@@ -3,31 +3,42 @@
     %title Pringle - Projected Mingle
     %link{:rel => "stylesheet", :type => "text/css", :href => "/application.css"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.ui.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.dataset.js"}
-    %script{:type => "text/javascript", :src => "/javascript/jquery.template.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.blockUI.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.ba-bbq.js"}
     %script{:type => "text/javascript", :src => "/javascript/inputmultiselect-2.0.3.min.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.template.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
+    
     %script{:id => "cardTemplate", :type => "text/html"}
-      .card
+      .card{:id => "${number}", :"data-type" => "${card_type.name}", :"data-modified" => "${modified_on}"}
         .header
-          .number
+          .number #${number}
         .body
-          .name
-          .type
+          .name ${name}
+          .type ${card_type.name}
         .footer
-          .owner
+          .owner ${owner}
+          
     %script{:id => "laneTemplate", :type => "text/html"}
-      %li.swimlane
-        .header
-          .name
+      %li.swimlane{:"data-name" => "${value}"}
+        .header 
+          .name ${value}
         .cards
+        
+    %script{:id => "legendKeyTemplate", :type => "text/html"}
+      %li.legendKey{:"data-name" => "${name}", :"data-color" => "${color}"}
+        .color{:style => "background-color: ${color}"}
+        .name ${name}
 
   %body
-    #main
-      %h1#heading Agile Hybrid
-      %ul#storyWall.vertical
+    #content.storyWall
+      .header
+        %h1.heading Should Change
+        %ul.legend
+      %ul.wall.vertical
+      
     #footer
       %a{:href => "/", :class => "logo"}
         %img{:src => "/images/tw_logo3.png"}
