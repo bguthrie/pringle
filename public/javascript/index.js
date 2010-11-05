@@ -6,6 +6,10 @@ $(document).ready(function() {
   $("#pringleView").change(function() {
     $(".storyWall").storywall("orientation", $(this).val());
   });
+  
+  $(window).resize(function() {
+    $("#content > .body").height($(window).height() - $("#footer").height() - 30);
+  })
 });
 
 
@@ -106,11 +110,16 @@ $(document).ready(function() {
     _create: function() {
       var self = this;
       
-      this.options.r = Raphael(this.element.find(".graph")[0]);
+      self._makeChart();
       
       $(document).bind("cards", function(evt, data) {
         self._setCards(data.cards);
       });
+    },
+    
+    _makeChart: function() {
+      $("<div/>").addClass("chartBody").appendTo(this.element.find(".body"));
+      this.options.r = Raphael(this.element.find(".chartBody")[0]);
     },
 
     _setCards: function(cards) {
@@ -178,8 +187,8 @@ $(document).ready(function() {
     _create: function() {
       var self = this;
 
-      this.element.find(".legend").legend();
-      this.element.find(".wall").swimlanes();
+      this._makeLegend();
+      this._makeWall();
 
       $(window).resize(function(evt) { self._resize(); });
 
@@ -188,6 +197,14 @@ $(document).ready(function() {
       });
 
       $(document).bind("cards", function(evt, data) { self._resize(); });
+    },
+    
+    _makeLegend: function() {
+      $("<ul class='legend'/>").legend().appendTo(this.element.find(".header"));
+    },
+    
+    _makeWall: function() {
+      $("<ul class='wall'/>").addClass(this.options.orientation).swimlanes().appendTo(this.element.find(".body"));
     },
 
     _setProject: function(project) {
@@ -201,7 +218,7 @@ $(document).ready(function() {
     },
 
     _resize: function() {
-      this.element.find(".wall").css({ height: $(window).height() - $("#footer").height() - 30 });
+      // this.element.find(".wall").css({ height: $(window).height() - $("#footer").height() - 30 });
 
       var lanes = this.element.find(".swimlane");
 
@@ -301,8 +318,6 @@ $(document).ready(function() {
       $(document).bind("cardTypes", function(evt, data) {
         self._setCardTypes(data.card_types);
       });
-
-      self.show();
     },
 
     _setCardTypes: function(cardTypes) {
@@ -311,6 +326,8 @@ $(document).ready(function() {
       $(cardTypes).each(function() {
         $(self.options.template).tmpl(this).appendTo(self.element);
       });
+      
+      self.show();
     },
 
     hide: function(event, ui) {

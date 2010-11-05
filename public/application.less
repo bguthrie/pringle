@@ -27,8 +27,20 @@ ul, li {
   list-style-type: none;
 }
 
+#colors {
+  @bg: #111;
+  @heading: #222;
+}
+
 #content {
   position: relative;
+  
+  > .body {
+    overflow: hidden;
+    height: 300px;
+    margin: 10px 10px 0px 10px;
+    -webkit-border-radius: 4px;
+  }
   
   .heading {
     margin: 8px 0px 8px 32px;
@@ -37,11 +49,10 @@ ul, li {
   }
 }
 
-#content.graph {
-  .wall {
-    height: 300px;
-    margin: 10px 10px 0px 10px;
-    -webkit-border-radius: 4px;
+#content.piechart {
+  .chartBody {
+    background-color: #colors[@bg];
+    height: 100%;
   }
 }
 
@@ -54,7 +65,7 @@ ul, li {
     height: 15px;
     
     margin: 4px 10px 0px 10px;
-    background-color: #111;
+    background-color: #colors[@bg];
     -webkit-border-radius: 4px;
     float: right;
     width: 400px;
@@ -80,12 +91,8 @@ ul, li {
   }
   
   .wall {
-    height: 300px;
-    margin: 10px 10px 0px 10px;
-    -webkit-border-radius: 4px;
-    
     .swimlane {
-      background-color: #111;
+      background-color: #colors[@bg];
     }
   }
   
@@ -99,7 +106,7 @@ ul, li {
 
       > .header {
         -webkit-border-radius: 4px;
-        background-color: #222;
+        background-color: #colors[@heading];
         padding: 4px;
         text-align: center;
         margin: 8px;
@@ -158,8 +165,6 @@ ul, li {
   }
 
   .wall.vertical {
-    overflow: hidden;
-    
     .swimlane {
       display: block;
       width: 130px;
@@ -169,7 +174,7 @@ ul, li {
 
       > .header {
         -webkit-border-radius: 4px;
-        background-color: #222;
+        background-color: #colors[@heading];
         padding: 4px;
         text-align: center;
         margin: 8px;
