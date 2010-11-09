@@ -36,17 +36,16 @@ $(document).ready(function() {
       },
 
       status: function() {
-        return this.property(this.project.statusId);
+        return this.property(this.project.options.statusName);
       }
     };
     
-    
     this.options = {};
+    
     _.extend(this.options, opts);
     this.options.cardMethods = _.extend(defaultCardMethods, opts.cardMethods);
     this.options.charts = _.extend(defaultCharts, opts.charts);
     
-
     $(this).bind("pringle.project.get", this._getProject).
             bind("pringle.cardTypes.get", this._getCardTypes).
             bind("pringle.statuses.get", this._getStatuses).
@@ -92,7 +91,7 @@ $(document).ready(function() {
     },
     
     _getCards: function(evt, params) {
-      params = _.isNull(params) ? { page: 1 } : params;
+      params = (_.isNull(params) || _.isUndefined(params)) ? { page: 1 } : params;
       this._mingle("/cards", params, this._setCards);
     },
     
@@ -130,6 +129,8 @@ $(document).ready(function() {
       }
     }
   });
+  
+  $.projects.define("rapidftr", { statusId: 286, statusName: "Status" });
 })(jQuery);
 
 (function($) {
@@ -230,10 +231,12 @@ $(document).ready(function() {
 
       $(window).resize(function(evt) { self._resize(); });
       
-      this.options.project.bind("pringle.project.set", _.bind(this._setProject, this));
+      // this.options.project.bind("pringle.project.set", _.bind(this._setProject, this));
       this.options.project.bind("pringle.cards.set", _.bind(this._resize, this));
 
-      this.options.project.trigger("pringle.project.get");
+      // this.options.project.trigger("pringle.project.get");
+      this.element.find(".heading").html(this.options.project.name);
+      this.show();
     },
     
     _makeLegend: function() {

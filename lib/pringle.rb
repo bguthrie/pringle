@@ -33,12 +33,14 @@ class Pringle < Sinatra::Base
   get '/mingle' do
     content_type "application/json"
     mingle_uri = base_mingle_uri(params[:path])
-    response = mingle_uri.get(params[:params])
+    query_params = params[:params].blank? ? {} : Rack::Utils.parse_query(params[:params])
+    
+    response = mingle_uri.get(query_params)
 
     case response.code.to_i
     when 404
       status 404
-      body ActiveSupport::JSON.encode(:error => "Not Found", :uri => mingle_uri.inspect)
+      body ActiveSupport::JSON.encode(:error => "Not Found", :uri => mingle_uri)
     when 200
       json = ActiveSupport::JSON.encode(response.deserialise)
       if params[:callback]
@@ -48,7 +50,7 @@ class Pringle < Sinatra::Base
       end
     else
       status response.code.to_i
-      body ActiveSupport::JSON.encode(:error => "Unknown", :text => response.body)
+      body ActiveSupport::JSON.encode(:error => "Unknown", :uri => mingle_uri, :text => response.body)
     end
   end
 
