@@ -1,7 +1,8 @@
 $(document).ready(function() {
-  $(document).getProject("agile_hybrid");
-  $(".storyWall").storywall();
-  $(".piechart").piechart();
+  var project = $.project("agile_hybrid");
+  
+  $(".storyWall").storywall({ project: project });
+  $(".piechart").piechart({ project: project });
   
   $("#pringleView").change(function() {
     $(".storyWall").storywall("orientation", $(this).val());
@@ -16,75 +17,17 @@ $(document).ready(function() {
   var Project = function(name, opts) {
     this.name = name;
     
-    var defaults = {
-      charts: {
-        cardsByType: function(cards) {
-          _(cards).reduce(function(memo, card) {
-            var oldValue = memo[card.card_type.name];
-            memo[card.card_type.name] = ( oldValue || 0 ) + 1;
-            return memo;
-          }, {});
-        }
-      },
-
-      cardMethods: {
-        project: function() {
-          return $.projects.get(this.project.identifier);
-        },
-        
-        property: function(propName) {
-          var property = _(this.properties).find(function(o) {
-            return o.name === propName;
-          });
-          return ( property || {} ).value;
-        },
-
-        status: function() {
-          return this.property(this.project().statusId);
-        }
+    var defaultCharts = {
+      cardsByType: function(cards) {
+        _(cards).reduce(function(memo, card) {
+          var oldValue = memo[card.card_type.name];
+          memo[card.card_type.name] = ( oldValue || 0 ) + 1;
+          return memo;
+        }, {});
       }
     };
     
-    this.options = {};
-    _.extend(this.options, defaults, opts);
-    _.extend(this.options.cardMethods, defaults.cardMethods, opts.cardMethods);
-    _.extend(this.options.charts, defaults.charts, opts.charts);
-  }
-  
-  $.projects = _([]);
-  $.project = function(name) {
-    $.projects.find(function(proj) { return proj.name === name; });
-  };
-  
-  var addProject = function(name, opts) {
-    $.projects.push(new Project(name, opts));
-  };
-  
-  addProject("agile_hybrid", {
-    statusId: 111,
-    
-    cardMethods: {
-      status: function() {
-        return this.property("Story Status") || this.property("Defect Status") ||
-               this.property("Risk Status") || this.property("Feature Status");
-      }
-    }
-  });
-})(jQuery);
-
-(function($) {
-  var Mingle = {
-    get: function(path, params, fn) {
-      if (typeof params === "function") {
-        fn = params;
-        params = {};
-      }
-
-      var params = typeof(params) === "string" ? params : $.param(params || {});
-      $.get("/mingle", { path: path, params: params }, fn, "jsonp");
-    },
-
-    cardMethods: {
+    var defaultCardMethods = {
       property: function(propName) {
         var property = _(this.properties).find(function(o) {
           return o.name === propName;
@@ -93,108 +36,98 @@ $(document).ready(function() {
       },
 
       status: function() {
+        return this.property(this.project.statusId);
+      }
+    };
+    
+    
+    this.options = {};
+    _.extend(this.options, opts);
+    this.options.cardMethods = _.extend(defaultCardMethods, opts.cardMethods);
+    this.options.charts = _.extend(defaultCharts, opts.charts);
+    
+
+    $(this).bind("pringle.project.get", this._getProject).
+            bind("pringle.cardTypes.get", this._getCardTypes).
+            bind("pringle.statuses.get", this._getStatuses).
+            bind("pringle.cards.get", this._getCards);
+  };
+  
+  _.extend(Project.prototype, {
+    _mingle: function(path, params, callback) {
+      if (_.isFunction(params)) {
+        callback = params;
+        params = {};
+      }
+
+      params = typeof(params) === "string" ? params : $.param(params || {});
+      path = "/projects/" + this.name + path;
+      callback = _.bind(callback, this);
+      
+      $.get("/mingle", { path: path, params: params }, callback, "jsonp");
+    },
+    
+    _getProject: function(evt) {
+      this._mingle("", this._setProject);
+    },
+    
+    _setProject: function(data) {
+      $(this).trigger("pringle.project.set", [ data ]);
+    },
+    
+    _getCardTypes: function(evt) {
+      this._mingle("/card_types", this._setCardTypes);
+    },
+    
+    _setCardTypes: function(data) {
+      $(this).trigger("pringle.cardTypes.set", [ data ])
+    },
+    
+    _getStatuses: function(evt) {
+      this._mingle("/property_definitions/" + this.options.statusId, this._setStatuses);
+    },
+    
+    _setStatuses: function(data) {
+      $(this).trigger("pringle.statuses.set", [ data ]);
+    },
+    
+    _getCards: function(evt, params) {
+      params = _.isNull(params) ? { page: 1 } : params;
+      this._mingle("/cards", params, this._setCards);
+    },
+    
+    _setCards: function(data) {
+      _(data.cards).each(function(card) {
+        _.extend(card, this.options.cardMethods, { project: this });
+      }, this);
+
+      $(this).trigger("pringle.cards.set", [ data ]);
+    },
+  });
+  
+  _.bindAll(Project);
+  
+  $.projects = _([]);
+  
+  $.project = function(name) {
+    var p = $.projects.find(function(proj) { return proj.name === name; });
+    return $(p);
+  };
+  
+  $.projects.define = function(name, opts) {
+    this.push(new Project(name, opts));
+  };
+})(jQuery);
+
+(function($) {
+  $.projects.define("agile_hybrid", {
+    statusId: 111,
+    
+    cardMethods: {
+      status: function() {
         return this.property("Story Status") || this.property("Defect Status") ||
                this.property("Risk Status") || this.property("Feature Status");
       }
-    }
-  };
-  
-  Mingle.Database = function(project) {
-    this.project = project;
-    
-    _.extend(this, {
-      _trigger: function(name) {
-        return _.bind(function(data) {
-          $(this).trigger("pringle." + name + ".set", [ data ]);
-        }, this);
-      },
-      
-      _mingle: function(path, callback) {
-        Mingle.get("/projects/" + this.project.name + path, callback);
-      },
-      
-      _project_get: function() {
-        this._mingle("", this._trigger("project"));
-      },
-      
-      _cardTypes_get: function() {
-        this._mingle("/card_types", this._trigger("cardTypes"));
-      },
-      
-      _statuses_get: function() {
-        this._mingle("/property_definitions/" + this.project.statusId, this._trigger("statuses"));
-      },
-      
-      _cards_get: function(params) {
-        if (_.isNull(params)) {
-          params = { page: 1 };
-        }
-        
-        Mingle.get("/projects/" + this.project.name + "/cards", params, _.bind(function(data) {
-          _(data.cards).each(function(card) {
-            _.extend(card, this.project.cardMethods);
-          })
-
-          $(this).trigger("cards", [ data ]);
-        }, this));
-      }
-    });
-    
-    _.bindAll(this);
-    
-    _(["project", "statuses", "cards", "cardTypes"]).each(function(callback) {
-      $(this).bind("pringle." + callback + ".get", _.bind(function(evt, args) {
-        this["_" + callback + "_get"](args);
-      }, this));
-    });
-  };
-  
-  _.extend($.fn, {
-    _makeTrigger: function(name) {
-      return _.bind(function(data) {
-        this.trigger(name, [ data ]);
-      }, this);
-    },
-
-    getProject: function(name) {
-      return $(this).each(_.bind(function() {
-        $(this).dataset("project-name", name);
-        Mingle.get("/projects/" + name, $(this)._makeTrigger("project"));
-        $(this).getCardTypes().getStatuses(111).getCards();
-      }, this))
-    },
-
-    getCardTypes: function() {
-      return $(this).each(_.bind(function() {
-        var project = $(this).dataset("project-name");
-        Mingle.get("/projects/" + project + "/card_types", this._makeTrigger("cardTypes"));
-      }, this))
-    },
-
-    getStatuses: function(definitionId) {
-      return $(this).each(_.bind(function() {
-        var project = $(this).dataset("project-name");
-        Mingle.get("/projects/" + project + "/property_definitions/" + definitionId, this._makeTrigger("statuses"));
-      }, this));
-    },
-
-    getCards: function(params) {
-      return $(this).each(_.bind(function() {
-        if (_.isNull(params)) {
-          params = { page: 1 };
-        }
-
-        var elt = $(this);
-        var project = elt.dataset("project-name");
-
-        Mingle.get("/projects/" + project + "/cards", params, function(data) {
-          _(data.cards).each(function(card) {
-            _.extend(card, Mingle.cardMethods);
-          })
-
-          elt.trigger("cards", [ data ]);
-        });
-      }, this));
     }
   });
 })(jQuery);
@@ -212,10 +145,12 @@ $(document).ready(function() {
       var self = this;
       
       self._makeChart();
-      
-      $(document).bind("cards", function(evt, data) {
-        self._setCards(data.cards);
-      });
+      this.options.project.bind("pringle.cards.set", _.bind(this._setCards, this));
+
+      this.options.project.trigger("pringle.project.get");
+      this.options.project.bind("pringle.project.set", _.bind(function() {
+        this.options.project.trigger("pringle.cards.get");
+      }, this));
     },
     
     _makeChart: function() {
@@ -223,7 +158,9 @@ $(document).ready(function() {
       this.options.r = Raphael(this.element.find(".chartBody")[0]);
     },
 
-    _setCards: function(cards) {
+    _setCards: function(evt, data) {
+      var cards = data.cards;
+      
       var cardsIndexed = _(cards).reduce(function(memo, card) {
         var oldValue = memo[card.card_type.name];
         memo[card.card_type.name] = ( oldValue || 0 ) + 1;
@@ -243,7 +180,7 @@ $(document).ready(function() {
       return _(data);
     },
     
-    _renderPie: function(evt, data) {
+    _renderPie: function() {
       var data = this._getData();
       
       var pie = this.options.r.g.piechart(
@@ -292,33 +229,32 @@ $(document).ready(function() {
       this._makeWall();
 
       $(window).resize(function(evt) { self._resize(); });
+      
+      this.options.project.bind("pringle.project.set", _.bind(this._setProject, this));
+      this.options.project.bind("pringle.cards.set", _.bind(this._resize, this));
 
-      $(document).bind("project", function(evt, data) {
-        self._setProject(data.project);
-      });
-
-      $(document).bind("cards", function(evt, data) { self._resize(); });
+      this.options.project.trigger("pringle.project.get");
     },
     
     _makeLegend: function() {
-      $("<ul class='legend'/>").legend().appendTo(this.element.find(".header"));
+      $("<ul class='legend'/>").legend({ 
+        project: this.options.project 
+      }).appendTo(this.element.find(".header"));
     },
     
     _makeWall: function() {
-      $("<ul class='wall'/>").addClass(this.options.orientation).swimlanes().appendTo(this.element.find(".body"));
+      $("<ul class='wall'/>").addClass(this.options.orientation).swimlanes({
+        project: this.options.project
+      }).appendTo(this.element.find(".body"));
     },
 
-    _setProject: function(project) {
-      this.options.project = project;
+    _setProject: function(evt, data) {
+      var project = data.project;
       this.element.find(".heading").html(this.options.project.name);
       this.show();
     },
 
-    _setStatuses: function(statuses) {
-      this.element.find(".wall").swimlanes({ statuses: statuses });
-    },
-
-    _resize: function() {
+    _resize: function(evt, data) {
       var lanes = this.element.find(".swimlane");
 
       if (this.options.orientation === "vertical") {
@@ -360,20 +296,17 @@ $(document).ready(function() {
     },
 
     _create: function() {
-      $(document).bind("statuses", _.bind(function(evt, data) {
-        console.log(this);
-        this._setStatuses(data.property_definition.property_value_details);
-      }, this));
+      this.options.project.bind("pringle.statuses.set", _.bind(this._setStatuses, this));
+      this.options.project.trigger("pringle.statuses.get");
     },
 
-    _setStatuses: function(statuses) {
-      console.log(this);
-      _(statuses).each(function(status) {
-        console.log("in loop");
-        console.log(this);
+    _setStatuses: function(evt, data) {
+      _(data.property_definition.property_value_details).each(function(status) {
         $(this.options.template).tmpl(status).appendTo(this.element);
-        this.element.find(".cards").cards();
+        this.element.find(".cards").cards({ project: this.options.project });
       }, this);
+      
+      this.options.project.trigger("pringle.cards.get");
     }
   });
 
@@ -385,18 +318,14 @@ $(document).ready(function() {
     _create: function() {
       this.options.name = this.element.closest(".swimlane").dataset("name");
       var self = this;
-
-      $(document).bind("cards", _.bind(function(evt, data) {
-        var cards = $(data.cards).filter(function() {
-          return this.status() == self.options.name;
-        });
-
-        self._setCards(cards);
-      }, this));
+      
+      this.options.project.bind("pringle.cards.set", _.bind(this._setCards, this));
     },
 
-    _setCards: function(cards) {
-      _(cards).each(function(card) {
+    _setCards: function(evt, data) {
+      _(data.cards).chain().select(function(card) {
+        return card.status() === this.options.name;
+      }, this).each(function(card) {
         var color = $(".legend").legend('colorFor', card.card_type.name);
         $(this.options.template).tmpl(card).css({ display: "none", backgroundColor: color }).appendTo(this.element).fadeIn();
       }, this);
@@ -409,13 +338,12 @@ $(document).ready(function() {
     },
 
     _create: function() {
-      $(document).bind("cardTypes", _.bind(function(evt, data) {
-        self._setCardTypes(data.card_types);
-      }, this));
+      this.options.project.trigger("pringle.cardTypes.get");
+      this.options.project.bind("pringle.cardTypes.set", _.bind(this._setCardTypes, this));
     },
 
-    _setCardTypes: function(cardTypes) {
-      _(cardTypes).each(function(cardType) {
+    _setCardTypes: function(evt, data) {
+      _(data.card_types).each(function(cardType) {
         $(this.options.template).tmpl(cardType).appendTo(this.element);
       }, this);
       
