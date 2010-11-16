@@ -14,6 +14,7 @@
     %script{:type => "text/javascript", :src => "/javascript/raphael.js"}
     %script{:type => "text/javascript", :src => "/javascript/g.raphael.js"}
     %script{:type => "text/javascript", :src => "/javascript/g.pie.js"}
+    %script{:type => "text/javascript", :src => "/javascript/pringle.project.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
     
     %script{:id => "cardTemplate", :type => "text/html"}
@@ -36,6 +37,10 @@
       %li.legendKey{:"data-name" => "${name}", :"data-color" => "${color}"}
         .color{:style => "background-color: ${color}"}
         .name ${name}
+        
+    %script{:id => "interestingValueTemplate", :type => "text/html"}
+      .value ${value}
+      .label{:style => "background-color: ${color}"} ${label}
 
   %body
     #content.storywall

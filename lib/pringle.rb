@@ -12,11 +12,31 @@ require 'active_support/json/encoding'
   Object.class_eval { const_set configuration_setting, ENV[configuration_setting] }
 end
 
-class Pringle < Sinatra::Base
-  MINGLE_API_BASE = "/api/v2"
+class Mingle
+  MINGLE_API_BASE   = "/api/v2"
+  CONTENT_EXTENSION = ".xml"
+  
+  attr_reader :host, :username, :password
+  
+  def initialize(opts={})
+    @host, @username, @password = opts.values_at(:host, :username, :password)
+  end
+  
+  def query(path, params={})
+    to_uri(path).get(params)
+  end
+  
+  private
+  
+    def to_uri(path)
+      (self.host + MINGLE_API_BASE + path + CONTENT_EXTENSION).to_uri(:username => self.username, :password => self.password)
+    end
+end
 
+class Pringle < Sinatra::Base
   set :app_file, __FILE__
   set :haml, :format => :html5
+  MINGLE = Mingle.new(:host => MINGLE_HOST, :username => MINGLE_USERNAME, :password => MINGLE_PASSWORD)
 
   get '/pringle/configure' do
     haml :configure
@@ -25,17 +45,12 @@ class Pringle < Sinatra::Base
   get '/pringle' do
     haml :index
   end
-  
-  def base_mingle_uri(path)
-    (MINGLE_HOST + MINGLE_API_BASE + path + ".xml").to_uri(:username => MINGLE_USERNAME, :password => MINGLE_PASSWORD)
-  end
-  
+
   get '/mingle' do
     content_type "application/json"
-    mingle_uri = base_mingle_uri(params[:path])
     query_params = params[:params].blank? ? {} : Rack::Utils.parse_query(params[:params])
     
-    response = mingle_uri.get(query_params)
+    response = MINGLE.query(params[:path], query_params)
 
     case response.code.to_i
     when 404

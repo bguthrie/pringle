@@ -12,7 +12,7 @@ end
 
 desc "Run a REPL with the right libs required."
 task :repl do
-  system "irb -Ilib -r rubygems -r lib/leangle"
+  system "irb -Ilib -r rubygems -r lib/pringle"
 end
 
 desc "Run a Rackup server in development mode"
