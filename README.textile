@@ -1,16 +1,13 @@
-= Pringle
+h1. Pringle
 
-# Pringle is a web application designed to provide you with attractive, uncluttered, high-contrast story wall for use with large-format, long-distance displays like projectors, and big-screen televisions. It is driven by the author's frustration with the need to maintain, dually, a physical card wall that must be manually updated to reflect the "real" state of a project in Mingle, because Mingle's story wall view isn't appropriate for use with a projector.
-
-# Pringle is a set of attractive visualizations, built and rendered in HTML5, allowing you to configure and cycle through highly visible project metrics like charts and interesting or significant values, for use with the same kinds of displays.
-
-# Pringle is, independently of its visualizations, a Ruby/Sinatra proxy server for the Mingle API. Start it with pre-configured user credentials and it will proxy requests from the host of your choice, translating them into JSON/P along the way. This makes it extremely easy to use Mingle in mashups.
-
-# Pringle is a Javascript API for submitting and consuming the Mingle API using JSON/P.
+* Pringle is a web application designed to provide you with attractive, uncluttered, high-contrast story wall for use with large-format, long-distance displays like projectors, and big-screen televisions. It is driven by the author's frustration with the need to maintain, dually, a physical card wall that must be manually updated to reflect the "real" state of a project in Mingle, because Mingle's story wall view isn't appropriate for use with a projector.
+* Pringle is a set of attractive visualizations, built and rendered in HTML5, allowing you to configure and cycle through highly visible project metrics like charts and interesting or significant values, for use with the same kinds of displays.
+* Pringle is, independently of its visualizations, a Ruby/Sinatra proxy server for the Mingle API. Start it with pre-configured user credentials and it will proxy requests from the host of your choice, translating them into JSON/P along the way. This makes it extremely easy to use Mingle in mashups.
+* Pringle is a Javascript API for submitting and consuming the Mingle API using JSON/P.
 
 Visualization support for other Agile-friendly project management systems is on my agenda for future work. Pivotal Tracker and JIRA editions, for example, would be fantastic.
 
-== Use as a proxy server
+h2. Use as a proxy server
 
 Pringle is a standard Sinatra application. It requires you to configured MINGLE_USERNAME, MINGLE_PASSWORD, and MINGLE_HOST environment variables. A Rake task that uses rackup is built in:
 
@@ -18,12 +15,12 @@ Pringle is a standard Sinatra application. It requires you to configured MINGLE_
   
 Nothing more needs to be configured if all you'd like to do is consume the API. I find that calls made through this proxy, while not blazing fast, are generally no worse than waiting for Mingle's standard views to render. Nonetheless, expect to work asynchronously with the AJAX request, as the response might take a while.
   
-== Use as a story wall
+h2. Use as a story wall
 
 Because every Mingle project is different, Pringle has to be configured to understand how to interpret your project's unique properties and team favorites. There is currently no truly great way of accomplishing this. There's a mechanism for defining project-specific values using a client-side JS API, but it isn't mature yet. In the meantime, read the code. (Sorry!)
 
 Presently the story wall is only compatible with Google Chrome, primarily because Firefox4 doesn't have Firebug yet as of this writing  and I don't feel like developing a web page without it, and because I don't care about IE support even a little bit. If you'd like to add it, or request that I do in exchange for remuneration, please be my guest.
 
-== Use for more complex visualizations
+h2. Use for more complex visualizations
 
 As with the story wall, to truly get some value out of the visualization mechanism you need to be able to define what values and charts you are interested in. Expect more here soon.
