@@ -17,42 +17,6 @@
     %script{:type => "text/javascript", :src => "/javascript/pringle.project.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
 
-    %script{:id => "wallTemplate", :type => "text/html"}
-      .storyWall
-        .header
-          %h1.heading ${name}
-          %ul.legend
-        .body
-          %ul.wall
-
-    %script{:id => "cardTemplate", :type => "text/html"}
-      .card{:id => "${number}", :"data-type" => "${card_type.name}", :"data-modified" => "${modified_on}"}
-        .header
-          .number #${number}
-        .body
-          .name ${name}
-          .type ${card_type.name}
-        .footer
-          .owner ${owner}
-
-    %script{:id => "laneTemplate", :type => "text/html"}
-      %li.swimlane{:"data-name" => "${value}"}
-        .header
-          .name ${value}
-        .cards
-
-    %script{:id => "legendKeyTemplate", :type => "text/html"}
-      %li.legendKey{:"data-name" => "${name}", :"data-color" => "${color}"}
-        .color{:style => "background-color: ${color}"}
-        .name ${name}
-
-    %script{:id => "interestingValueTemplate", :type => "text/html"}
-      .value ${value}
-      .fraction ${fraction}
-      .units ${units}
-      .label ${label}
-      .footnote ${footnote}
-
   %body
     #content
       .header
@@ -65,14 +29,6 @@
         %img{:src => "/images/tw_logo3.png"}
       #options{:style => "display: none"}
         %form#pringleOptions
-          %label{:for => "pringleView"} View:
-          %select{:id => "pringleView"}
-            %option{:value => "vertical"} Vertical Story Wall
-            %option{:value => "horizontal"} Horizontal Story Wall
-
-          %input{:type => "checkbox", :value => 1, :id => "shouldRefresh", :name => "shouldRefresh", :checked => "checked"}
-          %label{:for => "shouldRefresh"} Keep synchronized
-
         %form#cardFilter
           %label{:for => "viewFilter"} Cards:
           %select{:id => "viewFilter", :name => "view"}

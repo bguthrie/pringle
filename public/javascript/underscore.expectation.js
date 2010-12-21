@@ -22,7 +22,8 @@
   var Expectation = function(opts) {
     var defaults = { fireImmediately: true },
         expectations = {},
-        expectors = [];
+        expectors = [],
+        self = this;
         
     this.options = $.merge(defaults, opts);
 
@@ -33,7 +34,7 @@
       return function() {
         expectation.called = true;
         expectation.arguments = _(arguments).toArray();
-        fireIfReady();
+        self._fire();
       }
     };
 

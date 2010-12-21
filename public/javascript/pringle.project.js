@@ -1,20 +1,25 @@
 (function($) {
   window.Pringle = {};
-  var P = window.Pringle;
+  var P = window.Pringle,
+      readies = [];
   
-  P.ready = function(callback) {
-    var projectName = window.location.toString().match(/\/pringle\/(\w+)\??/)[1];
-    var project = P.Projects.findByName(projectName);
+  Pringle.init = function() {
+    var projectName = window.location.toString().match(/\/pringle\/(\w+)\??/)[1],
+        projectConf = "/javascript/projects/" + projectName + ".js",
+        project = new Pringle.Project(projectName);
     
-    if (!project) {
-      alert("Error: No project " + projectName + " defined.")
-      return;
-    }
-
-    project.fetch(callback);
+    $("<script/>").attr({ type: "text/javascript", src: projectConf }).appendTo($("head"));
+    
+    project.fetch(function() {
+      _(readies).each(function(ready) { ready.apply(project); });
+    });
   };
   
-  P.Project = function(name, opts) {
+  Pringle.ready = function(callback) {
+    readies.push(callback);
+  };
+  
+  Pringle.Project = function(name, opts) {
     this.name = name;
 
     // var defaultCharts = {
@@ -44,8 +49,6 @@
     this.views = {};
 
     _.extend(this.options, opts);
-    // this.options.cardMethods = _.extend(defaultCardMethods, opts.cardMethods);
-    // this.options.charts = _.extend(defaultCharts, opts.charts);
 
     this.bind("pringle.project.get", this._getProject).
          bind("pringle.cardTypes.get", this._getCardTypes).
@@ -53,12 +56,16 @@
          bind("pringle.cards.get", this._getCards);
   };
 
-  _.extend(P.Project.prototype, Backbone.Events, {
+  _.extend(Pringle.Project.prototype, Backbone.Events, {
     fetch: function(callback) {
       this._mingle("", function(data) {
         this.attributes = data.project;
         callback.apply(this);
       });
+    },
+    
+    mql: function(mql, callback) {
+      this._mingle("/cards/execute_mql", { mql: mql }, callback);
     },
     
     _mingle: function(path, params, callback) {
@@ -74,57 +81,63 @@
       $.get("/mingle" + path, params, callback, "jsonp");
     },
 
-    // _getCardTypes: function(evt) {
-    //   this._mingle("/card_types", this._setCardTypes);
-    // },
-    // 
-    // _setCardTypes: function(data) {
-    //   $(this).trigger("pringle.cardTypes.set", [ data ])
-    // },
-    // 
-    // _getStatuses: function(evt) {
-    //   this._mingle("/property_definitions/" + this.options.statusId, this._setStatuses);
-    // },
-    // 
-    // _setStatuses: function(data) {
-    //   $(this).trigger("pringle.statuses.set", [ data ]);
-    // },
-    // 
-    // _getCards: function(evt, params) {
-    //   params = (_.isNull(params) || _.isUndefined(params)) ? { page: 1 } : params;
-    //   this._mingle("/cards", params, this._setCards);
-    // },
-    // 
-    // _setCards: function(data) {
-    //   _(data.cards).each(function(card) {
-    //     _.extend(card, this.options.cardMethods, { project: this });
-    //   }, this);
-    // 
-    //   $(this).trigger("pringle.cards.set", [ data ]);
-    // },
-
-    mql: function(mql, callback) {
-      this._mingle("/cards/execute_mql", { mql: mql }, callback);
-    },
-  });
-
-  _.bindAll(P.Project);
-
-  P.Projects = _([]);
-  
-  P.View = function(project, root) {
-    var $root = $(root);
-    this.project = project;
-  }
-  
-  _.extend(P.Projects, {
-    findByName: function(name) {
-      return this.find(function(proj) { return proj.name === name; });
+    _getCardTypes: function(evt) {
+      this._mingle("/card_types", this._setCardTypes);
     },
     
-    define: function(name, opts) {
-      this.push(new P.Project(name, opts));
+    _setCardTypes: function(data) {
+      $(this).trigger("pringle.cardTypes.set", [ data ])
+    },
+    
+    _getStatuses: function(evt) {
+      this._mingle("/property_definitions/" + this.options.statusId, this._setStatuses);
+    },
+    
+    _setStatuses: function(data) {
+      $(this).trigger("pringle.statuses.set", [ data ]);
+    },
+    
+    _getCards: function(evt, params) {
+      params = (_.isNull(params) || _.isUndefined(params)) ? { page: 1 } : params;
+      this._mingle("/cards", params, this._setCards);
+    },
+    
+    _setCards: function(data) {
+      _(data.cards).each(function(card) {
+        _.extend(card, this.options.cardMethods, { project: this });
+      }, this);
+    
+      $(this).trigger("pringle.cards.set", [ data ]);
     }
   });
+
+  _.bindAll(Pringle.Project);
+  
+  var templateFor = function(type) {
+    return $.ajax({
+      url: "/templates/" + type + ".html",
+      async: false
+    }).responseText;
+  };
+  
+  Pringle.View = function(model) {
+    this.model = model;
+    this.template = $("<div/>").html(templateFor(this.type));
+    var self = this;
+    
+    this.render = function(target) {
+      var ex = _.expectation();
+      
+      target.fadeOut("slow", ex.expect("fadeOut"));
+      this.model.refresh(ex.expect("refresh"));
+      
+      ex.ready(function(returns) {
+        target.html(self.template.tmpl(returns.refresh));
+        target.fadeIn();
+      });
+    };
+  };
+  
+  Pringle.View.extend = Backbone.View.extend;
 })(jQuery);
 

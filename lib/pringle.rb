@@ -70,7 +70,7 @@ class Pringle < Sinatra::Base
       body ActiveSupport::JSON.encode(:error => "Unknown", :uri => params[:path], :text => response.body)
     end
   end
-
+  
   get '/application.css' do
     content_type "text/css"
     body         Less.parse File.read("public/application.less")
