@@ -14,9 +14,8 @@ h2. Use as a proxy server
 
 Pringle is a standard Sinatra application. It requires you to configured MINGLE_USERNAME, MINGLE_PASSWORD, and MINGLE_HOST environment variables. Start it like so:
 
-pre.
-bundle install
-rake server MINGLE_USERNAME=<username> MINGLE_PASSWORD=<password> MINGLE_HOST=http://my.mingle.host:8080
+@bundle install@
+@rake server MINGLE_USERNAME=<username> MINGLE_PASSWORD=<password> MINGLE_HOST=http://my.mingle.host:8080@
   
 Nothing more needs to be configured if all you'd like to do is consume the API. I find that calls made through this proxy, while not blazing fast, are generally no worse than waiting for Mingle's standard views to render. Nonetheless, expect to work asynchronously with the AJAX request, as the response might take a while.
 
@@ -26,8 +25,7 @@ h2. Use for more complex visualizations
 
 Because every Mingle project is different, Pringle has to be configured to understand how to interpret your project's unique data and card setup. Because of this, Pringle initialization is very loose--the JS framework configured the data for you and grabs your project's properties by introspecting its URL, and gives you some basic tools for working with the API, but you're more or less on your own at the moment. For an example of how Pringle looks in its default configured, start the server as above, make sure your Mingle instance has the Agile Hybrid sample project installed and configured, and navigate to the following URL:
 
-pre.
-http://localhost:4567/pringle/agile_hybrid
+@http://localhost:4567/pringle/agile_hybrid@
   
 This display cycles through some basic numbers that would be relevant to the project team using the Agile Hybrid template that comes pre-packaged in Mingle.
 
