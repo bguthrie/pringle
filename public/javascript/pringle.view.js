@@ -1,3 +1,26 @@
+// var defaultCharts = {
+//   cardsByType: function(cards) {
+//     _(cards).reduce(function(memo, card) {
+//       var oldValue = memo[card.card_type.name];
+//       memo[card.card_type.name] = ( oldValue || 0 ) + 1;
+//       return memo;
+//     }, {});
+//   }
+// };
+// 
+// var defaultCardMethods = {
+//   property: function(propName) {
+//     var property = _(this.properties).find(function(o) {
+//       return o.name === propName;
+//     });
+//     return ( property || {} ).value;
+//   },
+// 
+//   status: function() {
+//     return this.property(this.project.options.statusName);
+//   }
+// };
+
 // (function($) {
 //   $.widget("pringle", {
 //     options: {

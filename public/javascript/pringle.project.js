@@ -21,32 +21,7 @@
   
   Pringle.Project = function(name, opts) {
     this.name = name;
-
-    // var defaultCharts = {
-    //   cardsByType: function(cards) {
-    //     _(cards).reduce(function(memo, card) {
-    //       var oldValue = memo[card.card_type.name];
-    //       memo[card.card_type.name] = ( oldValue || 0 ) + 1;
-    //       return memo;
-    //     }, {});
-    //   }
-    // };
-    // 
-    // var defaultCardMethods = {
-    //   property: function(propName) {
-    //     var property = _(this.properties).find(function(o) {
-    //       return o.name === propName;
-    //     });
-    //     return ( property || {} ).value;
-    //   },
-    // 
-    //   status: function() {
-    //     return this.property(this.project.options.statusName);
-    //   }
-    // };
-
     this.options = {};
-    this.views = {};
 
     _.extend(this.options, opts);
 
@@ -113,31 +88,59 @@
 
   _.bindAll(Pringle.Project);
   
-  var templateFor = function(type) {
-    return $.ajax({
-      url: "/templates/" + type + ".html",
-      async: false
-    }).responseText;
-  };
-  
-  Pringle.View = function(model) {
-    this.model = model;
-    this.template = $("<div/>").html(templateFor(this.type));
+  Pringle.ViewRotator = function(target) {
+    this.target = target;
+    this.views = [];
     var self = this;
     
-    this.render = function(target) {
+    this.addView = function(model) {
+      this.views.push(new Pringle.View(model));
+    };
+    
+    this.rotate = function(speed, viewIdx) {
+      if (_.isUndefined(viewIdx)) viewIdx = 0;
+      console.log("pringle: Rotating to display view " + viewIdx);
+      
       var ex = _.expectation();
       
-      target.fadeOut("slow", ex.expect("fadeOut"));
-      this.model.refresh(ex.expect("refresh"));
+      this.target.fadeOut("slow", ex.expect("fadeOut"));
+      this.views[viewIdx].render(ex.expect("html"));
       
       ex.ready(function(returns) {
-        target.html(self.template.tmpl(returns.refresh));
-        target.fadeIn();
+        self.target.html(returns.html[0]);
+        self.target.fadeIn("slow");
+        
+        setTimeout(function() {
+          var nextViewIdx = ( viewIdx + 1 ) % self.views.length;
+          self.rotate(speed, nextViewIdx);
+        }, speed);
       });
     };
   };
   
-  Pringle.View.extend = Backbone.View.extend;
+  Pringle.View = function(model) {
+    this.model = model;
+    this.template = _.memoize(this._template);
+    _.bind(this._template, this);
+    
+    var self = this;
+    
+    this.render = function(ready) {
+      this.model.refresh(function(data) {
+        var html = self.template().tmpl(data);
+        return ready(html);
+      });
+    };
+  };
+  
+  _.extend(Pringle.View.prototype, {
+    _template: function() {
+      var template = $.ajax({
+        url: "/templates/" + this.model.type + ".html",
+        async: false
+      }).responseText;
+      
+      return $("<div/>").html(template);
+    }
+  });
 })(jQuery);
-
