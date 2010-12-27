@@ -1,26 +1,34 @@
 h1. Pringle
 
-* Pringle is a web application designed to provide you with attractive, uncluttered, high-contrast story wall for use with large-format, long-distance displays like projectors, and big-screen televisions. It is driven by the author's frustration with the need to maintain, dually, a physical card wall that must be manually updated to reflect the "real" state of a project in Mingle, because Mingle's story wall view isn't appropriate for use with a projector.
-* Pringle is a set of attractive visualizations, built and rendered in HTML5, allowing you to configure and cycle through highly visible project metrics like charts and interesting or significant values, for use with the same kinds of displays.
+Pringle is three things:
+
+* Pringle is a set of attractive visualizations of Mingle data, built and rendered in HTML5, that includes highly visible project metrics like charts and progress numbers, for use with large-format displays like projectors and big-screen televisions. It is designed to be customized to fit your project's data.
 * Pringle is, independently of its visualizations, a Ruby/Sinatra proxy server for the Mingle API. Start it with pre-configured user credentials and it will proxy requests from the host of your choice, translating them into JSON/P along the way. This makes it extremely easy to use Mingle in mashups.
 * Pringle is a Javascript API for submitting and consuming the Mingle API using JSON/P.
 
-Visualization support for other Agile-friendly project management systems is on my agenda for future work. Pivotal Tracker and JIRA editions, for example, would be fantastic.
+Pending: Pringle is a an attractive, uncluttered, high-contrast Agile story wall backed by Mingle. It is driven by the author's frustration with the need to maintain, dually, both Mingle and a physical card wall that is manually updated to reflect the "real" state of the project. The author does not think Mingle's story wall view is appropriate for use with a projector.
+
+Mingle has been tested using Google Chrome on Windows and Mac and Mingle 3.2 and nothing else. Firefox 4 support is planned. I'm not planning on checking or supporting any other browsers at this time.
 
 h2. Use as a proxy server
 
-Pringle is a standard Sinatra application. It requires you to configured MINGLE_USERNAME, MINGLE_PASSWORD, and MINGLE_HOST environment variables. A Rake task that uses rackup is built in:
+Pringle is a standard Sinatra application. It requires you to configured MINGLE_USERNAME, MINGLE_PASSWORD, and MINGLE_HOST environment variables. Start it like so:
 
-  rake server MINGLE_USERNAME=gthreepwood MINGLE_PASSWORD=lechucksucks MINGLE_HOST=http://my.mingle:8080
+  bundle install
+  rake server MINGLE_USERNAME=<username> MINGLE_PASSWORD=<password> MINGLE_HOST=http://my.mingle.host:8080
   
 Nothing more needs to be configured if all you'd like to do is consume the API. I find that calls made through this proxy, while not blazing fast, are generally no worse than waiting for Mingle's standard views to render. Nonetheless, expect to work asynchronously with the AJAX request, as the response might take a while.
-  
-h2. Use as a story wall
 
-Because every Mingle project is different, Pringle has to be configured to understand how to interpret your project's unique properties and team favorites. There is currently no truly great way of accomplishing this. There's a mechanism for defining project-specific values using a client-side JS API, but it isn't mature yet. In the meantime, read the code. (Sorry!)
-
-Presently the story wall is only compatible with Google Chrome, primarily because Firefox4 doesn't have Firebug yet as of this writing  and I don't feel like developing a web page without it, and because I don't care about IE support even a little bit. If you'd like to add it, or request that I do in exchange for remuneration, please be my guest.
+Note that your instance of Mingle must be configured to allow HTTP basic authentication. I've also encountered some odd issues where Mingle won't respect the /projects.xml API call; if you run into that, let me know.
 
 h2. Use for more complex visualizations
 
-As with the story wall, to truly get some value out of the visualization mechanism you need to be able to define what values and charts you are interested in. Expect more here soon.
+Because every Mingle project is different, Pringle has to be configured to understand how to interpret your project's unique data and card setup. Because of this, Pringle initialization is very loose--the JS framework configured the data for you and grabs your project's properties by introspecting its URL, and gives you some basic tools for working with the API, but you're more or less on your own at the moment. For an example of how Pringle looks in its default configured, start the server as above, make sure your Mingle instance has the Agile Hybrid sample project installed and configured, and navigate to the following URL:
+
+  http://localhost:4567/pringle/agile_hybrid
+  
+This display cycles through some basic numbers that would be relevant to the project team using the Agile Hybrid template that comes pre-packaged in Mingle.
+
+h2. Use as a story wall (Pending)
+
+Presently the story wall isn't working, as other stuff has taken priority. But it used to work, and in principle could so so again. The trouble is in configuration, as each project is slightly different. Most likely this will come in the future via API calls. In the meantime, all of the code for rendering a story wall has been disabled.
