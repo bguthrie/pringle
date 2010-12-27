@@ -1,6 +1,6 @@
 body {
   font-family: Helvetica, Arial, sans-serif;
-  background: black;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #000000), color-stop(33%, #111));
   color: white;
 }
 
@@ -35,15 +35,30 @@ ul, li {
   
   > .body {
     overflow: hidden;
-    height: 300px;
     margin: 10px 10px 0px 10px;
     -webkit-border-radius: 4px;
   }
   
-  .heading {
+  > .header {
     margin: 8px 0px 8px 32px;
-    font-weight: normal;
-    font-size: xx-large;
+    
+    .tw_logo {
+    }
+    
+    .mingle_logo {
+      vertical-align: -8
+    }
+    
+    .heading {
+      margin-left: 4px;
+      border-left: 2px solid #888;
+      padding-left: 10px;
+      
+      vertical-align: 8;
+      font-weight: normal;
+      font-size: 40px;
+      display: inline;
+    }
   }
 }
 
@@ -242,7 +257,38 @@ ul, li {
   }
 }
 
-#footer {
+#content .body .interestingValue {
+  .value {
+    display: inline;
+    font-size: 300px;
+    letter-spacing: -0.08em;
+    line-height: 90%;
+  }
+  
+  .unit {
+    display: inline;
+    font-size: 30px;
+  }
+  
+  .heading {
+    -webkit-border-radius: 4px;
+    margin: 0px 20px;
+    background-color: #F15A23;
+    padding: 10px;
+    font-size: 80px;
+    text-transform: uppercase;
+  }
+  
+  .caption {
+    margin: 10px 30px;
+    font-size: 24px;
+    color: #888;
+    font-style: italic;
+    font-weight: 100;
+  }
+}
+
+/*#footer {
   color: black;
   font-size: small;
   position: absolute;
@@ -289,4 +335,4 @@ ul, li {
     width: 30px;
     height: 20px;
   }
-}
+}*/

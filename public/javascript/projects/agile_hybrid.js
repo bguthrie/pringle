@@ -14,7 +14,7 @@ Pringle.ready(function() {
       project.mql(self.data.query, function(result) {
         var tuple = _(result.results).first();
         var value = _(_(tuple).values()).first();
-        var newData = _.extend(self.data, { value: value });
+        var newData = _.extend(self.data, { value: parseFloat(value) });
 
         callback(newData);
       });

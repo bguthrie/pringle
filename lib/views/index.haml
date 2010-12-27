@@ -2,7 +2,7 @@
   %head
     %title Pringle - Projected Mingle
     %link{:rel => "stylesheet/less", :type => "text/css", :href => "/stylesheets/pringle.less"}
-    %script{:type => "text/javascript", :src => "/javascript/jquery.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.js"}t
     %script{:type => "text/javascript", :src => "/javascript/jquery.ui.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.dataset.js"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.blockUI.js"}
@@ -21,13 +21,14 @@
   %body
     #content
       .header
+        %img.tw_logo{:src => "/images/tw_logo.png"}
+        %img.mingle_logo{:src => "/images/mingle_logo.png"}
         %h1.heading
       .body
         // Stuff goes here.
 
     #footer
       %a{:href => "/", :class => "logo"}
-        %img{:src => "/images/tw_logo3.png"}
       #options{:style => "display: none"}
         %form#pringleOptions
         %form#cardFilter
