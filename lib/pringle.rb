@@ -13,6 +13,11 @@ require 'active_support/core_ext/hash/except'
   Object.class_eval { const_set configuration_setting, ENV[configuration_setting] }
 end
 
+class BlackHoleCache < Hash
+  def has_key?(key); false; end
+  def [](key); nil; end
+end
+
 class Mingle
   MINGLE_API_BASE   = "api/v2"
   CONTENT_TYPE = "xml"
@@ -21,7 +26,7 @@ class Mingle
     @content_type = opts[:content_type] || CONTENT_TYPE
 
     host, username, password = opts.values_at(:host, :username, :password)
-    @base_uri = "#{host}/#{MINGLE_API_BASE}".to_uri(:username => username, :password => password)
+    @base_uri = "#{host}/#{MINGLE_API_BASE}".to_uri(:username => username, :password => password, :cache_store => BlackHoleCache.new)
   end
 
   def query(path, params={})
@@ -41,10 +46,6 @@ MINGLE = Mingle.new(:host => MINGLE_HOST, :username => MINGLE_USERNAME, :passwor
 class Pringle < Sinatra::Base
   set :app_file, __FILE__
   set :haml, :format => :html5
-
-  get '/pringle/configure' do
-    haml :configure
-  end
 
   get '/pringle/:project_name' do
     haml :index

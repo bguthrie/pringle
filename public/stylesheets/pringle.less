@@ -27,10 +27,8 @@ ul, li {
   list-style-type: none;
 }
 
-#colors {
-  @bg: #111;
-  @heading: #222;
-}
+@bgColor: #111;
+@headingColor: #222;
 
 #content {
   position: relative;
@@ -51,7 +49,7 @@ ul, li {
 
 #content.piechart {
   .chartBody {
-    background-color: #colors[@bg];
+    background-color: @bgColor;
     height: 100%;
   }
 }
@@ -65,7 +63,7 @@ ul, li {
     height: 15px;
     
     margin: 4px 10px 0px 10px;
-    background-color: #colors[@bg];
+    background-color: @bgColor;
     -webkit-border-radius: 4px;
     float: right;
     width: 400px;
@@ -92,7 +90,7 @@ ul, li {
   
   .wall {
     .swimlane {
-      background-color: #colors[@bg];
+      background-color: @bgColor;
     }
   }
   
@@ -106,7 +104,7 @@ ul, li {
 
       > .header {
         -webkit-border-radius: 4px;
-        background-color: #colors[@heading];
+        background-color: @headingColor;
         padding: 4px;
         text-align: center;
         margin: 8px;
@@ -174,7 +172,7 @@ ul, li {
 
       > .header {
         -webkit-border-radius: 4px;
-        background-color: #colors[@heading];
+        background-color: @headingColor;
         padding: 4px;
         text-align: center;
         margin: 8px;
