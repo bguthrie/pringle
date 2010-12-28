@@ -1,6 +1,6 @@
 body {
   font-family: Helvetica, Arial, sans-serif;
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #000000), color-stop(33%, #111));
+  background: #1e1e1e;
   color: white;
   text-shadow: 0 0 1px rgba(0,0,0,0.1);
 }
@@ -44,10 +44,11 @@ ul, li {
     margin: 8px 0px 8px 32px;
     
     .tw_logo {
+      vertical-align: 6;
     }
     
     .mingle_logo {
-      vertical-align: -8
+      vertical-align: -8;
     }
     
     .heading {
@@ -57,7 +58,7 @@ ul, li {
       
       vertical-align: 8;
       font-weight: normal;
-      font-size: 40px;
+      font-size: 36px;
       display: inline;
     }
   }
@@ -273,6 +274,8 @@ ul, li {
   
   .heading {
     -webkit-border-radius: 4px;
+    // Slows down fade-ins.
+    // -webkit-box-shadow: 0 0 1em #000;
     margin: 0px 20px;
     background-color: #F15A23;
     padding: 10px;
