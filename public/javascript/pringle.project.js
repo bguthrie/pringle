@@ -3,12 +3,25 @@
   var P = window.Pringle,
       readies = [];
   
+  var addProjectStyleSheet = function(projectName) {
+    var link = document.createElement("link");
+    $(link).attr({ rel: "stylesheet/less", type: "text/css", href: "/stylesheets/projects/" + projectName + ".less" });
+    less.sheets.push(link);
+    less.refresh();
+  };
+  
+  var addProjectJavascript = function(projectName) {
+    var script = document.createElement("script");
+    $(script).attr({ type: "text/javascript", src: "/javascript/projects/" + projectName + ".js" });
+    $("head").append(script);
+  };
+  
   Pringle.init = function() {
-    var projectName = window.location.toString().match(/\/pringle\/(\w+)\??/)[1],
-        projectConf = "/javascript/projects/" + projectName + ".js",
-        project = new Pringle.Project(projectName);
-    
-    $("<script/>").attr({ type: "text/javascript", src: projectConf }).appendTo($("head"));
+    var projectName  = window.location.toString().match(/\/pringle\/(\w+)\??/)[1],
+        project      = new Pringle.Project(projectName);
+
+    addProjectStyleSheet(projectName);
+    addProjectJavascript(projectName);
     
     project.fetch(function() {
       _(readies).each(function(ready) { ready.apply(project); });

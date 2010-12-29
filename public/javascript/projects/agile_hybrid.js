@@ -3,8 +3,6 @@ Pringle.ready(function() {
       $root = $("#content .body"),
       REFRESH_TIME = 10000;
   
-  $("#content .header .heading").text(this.attributes.name);
-  
   var MqlValue = function(data) {
     this.data = data;
     this.type = "interestingValue";
