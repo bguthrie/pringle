@@ -26,15 +26,3 @@
         %h1.heading
       .body
         // Stuff goes here.
-
-    #footer
-      %a{:href => "/", :class => "logo"}
-      #options{:style => "display: none"}
-        %form#pringleOptions
-        %form#cardFilter
-          %label{:for => "viewFilter"} Cards:
-          %select{:id => "viewFilter", :name => "view"}
-            %option{:value => ""} All
-          %input{:type => "hidden", :name => "page", :value => "all"}
-          %button{:type => "submit", :class => "refresh"} Refresh Story Wall
-      #spinner

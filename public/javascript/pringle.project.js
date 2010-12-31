@@ -37,11 +37,6 @@
     this.options = {};
 
     _.extend(this.options, opts);
-
-    this.bind("pringle.project.get", this._getProject).
-         bind("pringle.cardTypes.get", this._getCardTypes).
-         bind("pringle.statuses.get", this._getStatuses).
-         bind("pringle.cards.get", this._getCards);
   };
 
   _.extend(Pringle.Project.prototype, Backbone.Events, {
@@ -69,33 +64,17 @@
       $.get("/mingle" + path, params, callback, "jsonp");
     },
 
-    _getCardTypes: function(evt) {
-      this._mingle("/card_types", this._setCardTypes);
+    getCardTypes: function(callback) {
+      this._mingle("/card_types", callback);
     },
     
-    _setCardTypes: function(data) {
-      $(this).trigger("pringle.cardTypes.set", [ data ])
+    getPropertyDefinition: function(propertyId, callback) {
+      this._mingle("/property_definitions/" + propertyId, callback);
     },
     
-    _getStatuses: function(evt) {
-      this._mingle("/property_definitions/" + this.options.statusId, this._setStatuses);
-    },
-    
-    _setStatuses: function(data) {
-      $(this).trigger("pringle.statuses.set", [ data ]);
-    },
-    
-    _getCards: function(evt, params) {
-      params = (_.isNull(params) || _.isUndefined(params)) ? { page: 1 } : params;
-      this._mingle("/cards", params, this._setCards);
-    },
-    
-    _setCards: function(data) {
-      _(data.cards).each(function(card) {
-        _.extend(card, this.options.cardMethods, { project: this });
-      }, this);
-    
-      $(this).trigger("pringle.cards.set", [ data ]);
+    getCards: function(params, callback) {
+      params = _.extend({ page: 1 }, params);
+      this._mingle("/cards", params, callback);
     }
   });
 
@@ -104,13 +83,17 @@
   Pringle.ViewRotator = function(target) {
     this.target = target;
     this.views = [];
-    var self = this;
+  };
+  
+  _.extend(Pringle.ViewRotator.prototype, {
+    addView: function(viewType, model) {
+      var view = new Pringle.View(model);
+      view.type = viewType;
+      this.views.push(view);
+    },
     
-    this.addView = function(model) {
-      this.views.push(new Pringle.View(model));
-    };
-    
-    this.rotate = function(speed, viewIdx) {
+    rotate: function(speed, viewIdx) {
+      var self = this;
       if (_.isUndefined(viewIdx)) viewIdx = 0;
       console.log("pringle: Rotating to display view " + viewIdx);
       
@@ -128,32 +111,55 @@
           self.rotate(speed, nextViewIdx);
         }, speed);
       });
-    };
+    }
+  });
+  
+  _.bindAll(Pringle.ViewRotator);
+  
+  Pringle.MqlQuery = function(project, attributes) {
+    this.project = project;
+    this.attributes = attributes;
   };
   
+  _.extend(Pringle.MqlQuery.prototype, {
+    refresh: function(callback) {
+      var self = this;
+      this.project.mql(self.attributes.query, function(result) {
+        var tuple = _(result.results).first();
+        var value = _(_(tuple).values()).first();
+        self.attributes.value = parseFloat(value);
+
+        callback(self.attributes);
+      });
+    }
+  });
+  
+  _.bindAll(Pringle.MqlQuery);
+
   Pringle.View = function(model) {
     this.model = model;
     this.template = _.memoize(this._template);
     _.bind(this._template, this);
-    
-    var self = this;
-    
-    this.render = function(ready) {
-      this.model.refresh(function(data) {
-        var html = self.template().tmpl(data);
-        return ready(html);
-      });
-    };
   };
   
   _.extend(Pringle.View.prototype, {
     _template: function() {
       var template = $.ajax({
-        url: "/templates/" + this.model.type + ".html",
+        url: "/templates/" + this.type + ".html",
         async: false
       }).responseText;
       
       return $("<div/>").html(template);
+    },
+    
+    render: function(ready) {
+      var self = this;
+      this.model.refresh(function(data) {
+        var html = self.template().tmpl(data);
+        return ready(html);
+      });
     }
   });
+  
+  _.bindAll(Pringle.View);
 })(jQuery);
