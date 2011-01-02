@@ -48,6 +48,7 @@
     },
     
     mql: function(mql, callback) {
+      console.log("pringle: querying " + mql);
       this._mingle("/cards/execute_mql", { mql: mql }, callback);
     },
     
@@ -116,25 +117,55 @@
   
   _.bindAll(Pringle.ViewRotator);
   
-  Pringle.MqlQuery = function(project, attributes) {
+  Pringle.extractNumber = function(mqlResult) {
+    var tuple = _(mqlResult.results).first();
+    var value = _(_(tuple).values()).first();
+    return parseFloat(value);
+  };
+  
+  Pringle.MqlNumber = function(project, attributes) {
     this.project = project;
     this.attributes = attributes;
   };
   
-  _.extend(Pringle.MqlQuery.prototype, {
+  _.extend(Pringle.MqlNumber.prototype, {
     refresh: function(callback) {
       var self = this;
       this.project.mql(self.attributes.query, function(result) {
-        var tuple = _(result.results).first();
-        var value = _(_(tuple).values()).first();
-        self.attributes.value = parseFloat(value);
-
+        self.attributes.value = Pringle.extractNumber(result);
         callback(self.attributes);
       });
     }
   });
   
-  _.bindAll(Pringle.MqlQuery);
+  _.bindAll(Pringle.MqlNumber);
+  
+  Pringle.MqlPercent = function(project, attributes) {
+    this.project = project;
+    this.attributes = attributes;
+  };
+  
+  _.extend(Pringle.MqlPercent.prototype, {
+    refresh: function(callback) {
+      var self = this,
+          baseQuery = this.attributes.query[0],
+          filterQuery = baseQuery + " AND " + this.attributes.query[1];
+          ex = _.expectation();
+
+      this.project.mql(baseQuery, ex.expect("base"));
+      this.project.mql(filterQuery, ex.expect("filter"));
+      
+      ex.ready(function(returns) {
+        var base = Pringle.extractNumber(returns.base[0]),
+            filter = Pringle.extractNumber(returns.filter[0]);
+            
+        self.attributes.value = ( filter / base ) * 100.0;
+        callback(self.attributes);
+      });
+    }
+  });
+  
+  _.bindAll(Pringle.MqlPercent);
 
   Pringle.View = function(model) {
     this.model = model;
