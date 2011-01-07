@@ -1,9 +1,33 @@
 <div class="storyWall">
   <div class="header">
-    <h1 class="heading">${name}</h1>
+    <h1 class="heading">${view}</h1>
     <ul class="legend"></ul>
   </div>
   <div class="body">
-    <ul class="wall"></ul>
+    <ul class="wall ${orientation}">
+      {{each(i, lane) lanes}}
+        <li class="swimlane" data-name="${lane.name}">
+          <div class="header">
+            <div class="name">${lane.name}</div>
+          </div>
+          <div class="cards">
+            {{each(j, card) cards}}
+              <div class="card" id="${card.number}" data-type="${card.card_type.name}" data-modified="${card.modified_on}">
+                <div class="header">
+                  <div class="number">#${card.number}</div>
+                </div>
+                <div class="body">
+                  <div class="name">${card.name}</div>
+                  <div class="type">${card.card_type.name}</div>
+                </div>
+                <div class="footer">
+                  <div class="owner">${card.owner}</div>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        </li>
+      {{/each}}
+    </ul>
   </div>
 </div>

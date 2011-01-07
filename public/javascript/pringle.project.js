@@ -93,18 +93,25 @@
 
       $.get("/mingle" + path, params, callback, "jsonp");
     },
+    
+    // Pull the given property out of the response and push that into the callback to simplify parsing.
+    disassemble: function(property, callback) {
+      return function(mingleResponse) {
+        callback(mingleResponse[property]);
+      };
+    },
 
     getCardTypes: function(callback) {
-      this._mingle("/card_types", callback);
+      this._mingle("/card_types", this.disassemble("card_types", callback));
     },
     
-    getPropertyDefinition: function(propertyId, callback) {
-      this._mingle("/property_definitions/" + propertyId, callback);
+    getPropertyDefinitions: function(callback) {
+      this._mingle("/property_definitions", this.disassemble("property_definitions", callback));
     },
     
     getCards: function(params, callback) {
       params = _.extend({ page: 1 }, params);
-      this._mingle("/cards", params, callback);
+      this._mingle("/cards", params, this.disassemble("cards", callback));
     }
   });
 
