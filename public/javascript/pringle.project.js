@@ -47,9 +47,38 @@
       });
     },
     
+    // Accepts a query and a callback that accepts a MQL response, which is triggered when
+    // the query is complete.
     mql: function(mql, callback) {
       console.log("pringle: querying " + mql);
       this._mingle("/cards/execute_mql", { mql: mql }, callback);
+    },
+    
+    // Accepts a query and a callback that expects a single MQL value, which is triggered when
+    // the query is complete.
+    mqlValue: function(mql, callback) {
+      this.mql(mql, function(mqlResult) {
+        var tuple = _(mqlResult.results).first();
+        var value = _(_(tuple).values()).first();
+        callback(parseFloat(value));
+      });
+    },
+    
+    // Accepts an array of one or more queries and a callback that expects an array of MQL values,
+    // which is triggered when all queries are complete.
+    mqlValues: function(queries, callback) {
+      var self = this,
+          ex = _.expectation();
+      
+      _(queries).each(function(query, idx) {
+        self.mqlValue(query, ex.expect("query" + idx));
+      });
+      
+      ex.ready(function(tuples) {
+        callback.apply(this, _(tuples).values().map(function(val) { 
+          return _(val).first(); 
+        }));
+      });
     },
     
     _mingle: function(path, params, callback) {
@@ -117,12 +146,6 @@
   
   _.bindAll(Pringle.ViewRotator);
   
-  Pringle.extractNumber = function(mqlResult) {
-    var tuple = _(mqlResult.results).first();
-    var value = _(_(tuple).values()).first();
-    return parseFloat(value);
-  };
-  
   Pringle.MqlNumber = function(project, attributes) {
     this.project = project;
     this.attributes = attributes;
@@ -131,9 +154,8 @@
   _.extend(Pringle.MqlNumber.prototype, {
     refresh: function(callback) {
       var self = this;
-      this.project.mql(self.attributes.query, function(result) {
-        self.attributes.value = Pringle.extractNumber(result);
-        callback(self.attributes);
+      this.project.mqlValue(this.attributes.query, function(result) {
+        callback(_(self.attributes).extend({ value: result }));
       });
     }
   });
@@ -143,30 +165,25 @@
   Pringle.MqlPercent = function(project, attributes) {
     this.project = project;
     this.attributes = attributes;
+    this.baseQuery = attributes.queries[0],
+    this.filterQuery = this.baseQuery + " AND " + attributes.queries[1];
   };
   
   _.extend(Pringle.MqlPercent.prototype, {
     refresh: function(callback) {
-      var self = this,
-          baseQuery = this.attributes.query[0],
-          filterQuery = baseQuery + " AND " + this.attributes.query[1];
-          ex = _.expectation();
-
-      this.project.mql(baseQuery, ex.expect("base"));
-      this.project.mql(filterQuery, ex.expect("filter"));
+      var self = this;
       
-      ex.ready(function(returns) {
-        var base = Pringle.extractNumber(returns.base[0]),
-            filter = Pringle.extractNumber(returns.filter[0]);
-            
-        self.attributes.value = ( filter / base ) * 100.0;
-        callback(self.attributes);
+      this.project.mqlValues([ this.filterQuery, this.baseQuery ], function(filter, base) {
+        var result = ( filter / base ) * 100.0;
+        callback(_(self.attributes).extend({ value: result }));
       });
     }
   });
   
   _.bindAll(Pringle.MqlPercent);
 
+  // A view has a model. That model must respond to the refresh function, which accepts a callback that
+  // expects to be called with the data with which to render the view.
   Pringle.View = function(model) {
     this.model = model;
     this.template = _.memoize(this._template);
