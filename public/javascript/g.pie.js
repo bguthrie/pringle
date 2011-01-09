@@ -1,1 +1,205 @@
-Raphael.fn.g.piechart=function(e,d,o,b,l){l=l||{};var k=this,m=[],g=this.set(),n=this.set(),j=this.set(),u=[],w=b.length,x=0,A=0,z=0,c=9,y=true;n.covers=g;if(w==1){j.push(this.circle(e,d,o).attr({fill:this.g.colors[0],stroke:l.stroke||"#fff","stroke-width":l.strokewidth==null?1:l.strokewidth}));g.push(this.circle(e,d,o).attr(this.g.shim));A=b[0];b[0]={value:b[0],order:0,valueOf:function(){return this.value;}};j[0].middle={x:e,y:d};j[0].mangle=180;}else{function t(F,E,i,H,D,M){var J=Math.PI/180,B=F+i*Math.cos(-H*J),p=F+i*Math.cos(-D*J),G=F+i/2*Math.cos(-(H+(D-H)/2)*J),L=E+i*Math.sin(-H*J),K=E+i*Math.sin(-D*J),C=E+i/2*Math.sin(-(H+(D-H)/2)*J),I=["M",F,E,"L",B,L,"A",i,i,0,+(Math.abs(D-H)>180),1,p,K,"z"];I.middle={x:G,y:C};return I;}for(var v=0;v<w;v++){A+=b[v];b[v]={value:b[v],order:v,valueOf:function(){return this.value;}};}b.sort(function(p,i){return i.value-p.value;});for(v=0;v<w;v++){if(y&&b[v]*360/A<=1.5){c=v;y=false;}if(v>c){y=false;b[c].value+=b[v];b[c].others=true;z=b[c].value;}}w=Math.min(c+1,b.length);z&&b.splice(w)&&(b[c].others=true);for(v=0;v<w;v++){var f=x-360*b[v]/A/2;if(!v){x=90-f;f=x-360*b[v]/A/2;}if(l.init){var h=t(e,d,1,x,x-360*b[v]/A).join(",");}var s=t(e,d,o,x,x-=360*b[v]/A);var q=this.path(l.init?h:s).attr({fill:l.colors&&l.colors[v]||this.g.colors[v]||"#666",stroke:l.stroke||"#fff","stroke-width":(l.strokewidth==null?1:l.strokewidth),"stroke-linejoin":"round"});q.value=b[v];q.middle=s.middle;q.mangle=f;m.push(q);j.push(q);l.init&&q.animate({path:s.join(",")},(+l.init-1)||1000,">");}for(v=0;v<w;v++){q=k.path(m[v].attr("path")).attr(this.g.shim);l.href&&l.href[v]&&q.attr({href:l.href[v]});q.attr=function(){};g.push(q);j.push(q);}}n.hover=function(C,r){r=r||function(){};var B=this;for(var p=0;p<w;p++){(function(D,E,i){var F={sector:D,cover:E,cx:e,cy:d,mx:D.middle.x,my:D.middle.y,mangle:D.mangle,r:o,value:b[i],total:A,label:B.labels&&B.labels[i]};E.mouseover(function(){C.call(F);}).mouseout(function(){r.call(F);});})(j[p],g[p],p);}return this;};n.each=function(B){var r=this;for(var p=0;p<w;p++){(function(C,D,i){var E={sector:C,cover:D,cx:e,cy:d,x:C.middle.x,y:C.middle.y,mangle:C.mangle,r:o,value:b[i],total:A,label:r.labels&&r.labels[i]};B.call(E);})(j[p],g[p],p);}return this;};n.click=function(B){var r=this;for(var p=0;p<w;p++){(function(C,D,i){var E={sector:C,cover:D,cx:e,cy:d,mx:C.middle.x,my:C.middle.y,mangle:C.mangle,r:o,value:b[i],total:A,label:r.labels&&r.labels[i]};D.click(function(){B.call(E);});})(j[p],g[p],p);}return this;};n.inject=function(i){i.insertBefore(g[0]);};var a=function(G,B,r,p){var K=e+o+o/5,J=d,F=J+10;G=G||[];p=(p&&p.toLowerCase&&p.toLowerCase())||"east";r=k.g.markers[r&&r.toLowerCase()]||"disc";n.labels=k.set();for(var E=0;E<w;E++){var L=j[E].attr("fill"),C=b[E].order,D;b[E].others&&(G[C]=B||"Others");G[C]=k.g.labelise(G[C],b[E],A);n.labels.push(k.set());n.labels[E].push(k.g[r](K+5,F,5).attr({fill:L,stroke:"none"}));n.labels[E].push(D=k.text(K+20,F,G[C]||b[C]).attr(k.g.txtattr).attr({fill:l.legendcolor||"#000","text-anchor":"start"}));g[E].label=n.labels[E];F+=D.getBBox().height*1.2;}var H=n.labels.getBBox(),I={east:[0,-H.height/2],west:[-H.width-2*o-20,-H.height/2],north:[-o-H.width/2,-o-H.height-10],south:[-o-H.width/2,o+10]}[p];n.labels.translate.apply(n.labels,I);n.push(n.labels);};if(l.legend){a(l.legend,l.legendothers,l.legendmark,l.legendpos);}n.push(j,g);n.series=j;n.covers=g;return n;};
+/*
+ * g.Raphael 0.4.1 - Charting library, based on Raphaël
+ *
+ * Copyright (c) 2009 Dmitry Baranovskiy (http://g.raphaeljs.com)
+ * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+ */
+Raphael.fn.g.piechart = function (cx, cy, r, values, opts) {
+    opts = opts || {};
+    var paper = this,
+        sectors = [],
+        covers = this.set(),
+        chart = this.set(),
+        series = this.set(),
+        order = [],
+        len = values.length,
+        angle = 0,
+        total = 0,
+        others = 0,
+        cut = 9,
+        defcut = true;
+    chart.covers = covers;
+    if (len == 1) {
+        series.push(this.circle(cx, cy, r).attr({fill: this.g.colors[0], stroke: opts.stroke || "#fff", "stroke-width": opts.strokewidth == null ? 1 : opts.strokewidth}));
+        covers.push(this.circle(cx, cy, r).attr(this.g.shim));
+        total = values[0];
+        values[0] = {value: values[0], order: 0, valueOf: function () { return this.value; }};
+        series[0].middle = {x: cx, y: cy};
+        series[0].mangle = 180;
+    } else {
+        function sector(cx, cy, r, startAngle, endAngle, fill) {
+            var rad = Math.PI / 180,
+                x1 = cx + r * Math.cos(-startAngle * rad),
+                x2 = cx + r * Math.cos(-endAngle * rad),
+                xm = cx + r / 2 * Math.cos(-(startAngle + (endAngle - startAngle) / 2) * rad),
+                y1 = cy + r * Math.sin(-startAngle * rad),
+                y2 = cy + r * Math.sin(-endAngle * rad),
+                ym = cy + r / 2 * Math.sin(-(startAngle + (endAngle - startAngle) / 2) * rad),
+                res = ["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(Math.abs(endAngle - startAngle) > 180), 1, x2, y2, "z"];
+            res.middle = {x: xm, y: ym};
+            return res;
+        }
+        for (var i = 0; i < len; i++) {
+            total += values[i];
+            values[i] = {value: values[i], order: i, valueOf: function () { return this.value; }};
+        }
+        values.sort(function (a, b) {
+            return b.value - a.value;
+        });
+        for (i = 0; i < len; i++) {
+            if (defcut && values[i] * 360 / total <= 1.5) {
+                cut = i;
+                defcut = false;
+            }
+            if (i > cut) {
+                defcut = false;
+                values[cut].value += values[i];
+                values[cut].others = true;
+                others = values[cut].value;
+            }
+        }
+        len = Math.min(cut + 1, values.length);
+        others && values.splice(len) && (values[cut].others = true);
+        for (i = 0; i < len; i++) {
+            var mangle = angle - 360 * values[i] / total / 2;
+            if (!i) {
+                angle = 90 - mangle;
+                mangle = angle - 360 * values[i] / total / 2;
+            }
+            if (opts.init) {
+                var ipath = sector(cx, cy, 1, angle, angle - 360 * values[i] / total).join(",");
+            }
+            var path = sector(cx, cy, r, angle, angle -= 360 * values[i] / total);
+            var p = this.path(opts.init ? ipath : path).attr({fill: opts.colors && opts.colors[i] || this.g.colors[i] || "#666", stroke: opts.stroke || "#fff", "stroke-width": (opts.strokewidth == null ? 1 : opts.strokewidth), "stroke-linejoin": "round"});
+            p.value = values[i];
+            p.middle = path.middle;
+            p.mangle = mangle;
+            sectors.push(p);
+            series.push(p);
+            opts.init && p.animate({path: path.join(",")}, (+opts.init - 1) || 1000, ">");
+        }
+        for (i = 0; i < len; i++) {
+            p = paper.path(sectors[i].attr("path")).attr(this.g.shim);
+            opts.href && opts.href[i] && p.attr({href: opts.href[i]});
+            p.attr = function () {};
+            covers.push(p);
+            series.push(p);
+        }
+    }
+
+    chart.hover = function (fin, fout) {
+        fout = fout || function () {};
+        var that = this;
+        for (var i = 0; i < len; i++) {
+            (function (sector, cover, j) {
+                var o = {
+                    sector: sector,
+                    cover: cover,
+                    cx: cx,
+                    cy: cy,
+                    mx: sector.middle.x,
+                    my: sector.middle.y,
+                    mangle: sector.mangle,
+                    r: r,
+                    value: values[j],
+                    total: total,
+                    label: that.labels && that.labels[j]
+                };
+                cover.mouseover(function () {
+                    fin.call(o);
+                }).mouseout(function () {
+                    fout.call(o);
+                });
+            })(series[i], covers[i], i);
+        }
+        return this;
+    };
+    // x: where label could be put
+    // y: where label could be put
+    // value: value to show
+    // total: total number to count %
+    chart.each = function (f) {
+        var that = this;
+        for (var i = 0; i < len; i++) {
+            (function (sector, cover, j) {
+                var o = {
+                    sector: sector,
+                    cover: cover,
+                    cx: cx,
+                    cy: cy,
+                    x: sector.middle.x,
+                    y: sector.middle.y,
+                    mangle: sector.mangle,
+                    r: r,
+                    value: values[j],
+                    total: total,
+                    label: that.labels && that.labels[j]
+                };
+                f.call(o);
+            })(series[i], covers[i], i);
+        }
+        return this;
+    };
+    chart.click = function (f) {
+        var that = this;
+        for (var i = 0; i < len; i++) {
+            (function (sector, cover, j) {
+                var o = {
+                    sector: sector,
+                    cover: cover,
+                    cx: cx,
+                    cy: cy,
+                    mx: sector.middle.x,
+                    my: sector.middle.y,
+                    mangle: sector.mangle,
+                    r: r,
+                    value: values[j],
+                    total: total,
+                    label: that.labels && that.labels[j]
+                };
+                cover.click(function () { f.call(o); });
+            })(series[i], covers[i], i);
+        }
+        return this;
+    };
+    chart.inject = function (element) {
+        element.insertBefore(covers[0]);
+    };
+    var legend = function (labels, otherslabel, mark, dir) {
+        var x = cx + r + r / 5,
+            y = cy,
+            h = y + 10;
+        labels = labels || [];
+        dir = (dir && dir.toLowerCase && dir.toLowerCase()) || "east";
+        mark = paper.g.markers[mark && mark.toLowerCase()] || "disc";
+        chart.labels = paper.set();
+        for (var i = 0; i < len; i++) {
+            var clr = series[i].attr("fill"),
+                j = values[i].order,
+                txt;
+            values[i].others && (labels[j] = otherslabel || "Others");
+            labels[j] = paper.g.labelise(labels[j], values[i], total);
+            chart.labels.push(paper.set());
+            chart.labels[i].push(paper.g[mark](x + 5, h, 5).attr({fill: clr, stroke: "none"}));
+            chart.labels[i].push(txt = paper.text(x + 20, h, labels[j] || values[j]).attr(paper.g.txtattr).attr({fill: opts.legendcolor || "#000", "text-anchor": "start"}));
+            covers[i].label = chart.labels[i];
+            h += txt.getBBox().height * 1.2;
+        }
+        var bb = chart.labels.getBBox(),
+            tr = {
+                east: [0, -bb.height / 2],
+                west: [-bb.width - 2 * r - 20, -bb.height / 2],
+                north: [-r - bb.width / 2, -r - bb.height - 10],
+                south: [-r - bb.width / 2, r + 10]
+            }[dir];
+        chart.labels.translate.apply(chart.labels, tr);
+        chart.push(chart.labels);
+    };
+    if (opts.legend) {
+        legend(opts.legend, opts.legendothers, opts.legendmark, opts.legendpos);
+    }
+    chart.push(series, covers);
+    chart.series = series;
+    chart.covers = covers;
+    return chart;
+};

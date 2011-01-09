@@ -1,7 +1,110 @@
-/*
+/*!
  * g.Raphael 0.4.1 - Charting library, based on Raphaël
  *
  * Copyright (c) 2009 Dmitry Baranovskiy (http://g.raphaeljs.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
-Raphael.fn.g.dotchart=function(K,J,a,f,w,v,r,F){function Q(b){+b[0]&&(b[0]=c.g.axis(K+q,J+q,a-2*q,B,n,F.axisxstep||Math.floor((a-2*q)/20),2,F.axisxlabels||null,F.axisxtype||"t"));+b[1]&&(b[1]=c.g.axis(K+a-q,J+f-q,f-2*q,A,m,F.axisystep||Math.floor((f-2*q)/20),3,F.axisylabels||null,F.axisytype||"t"));+b[2]&&(b[2]=c.g.axis(K+q,J+f-q+E,a-2*q,B,n,F.axisxstep||Math.floor((a-2*q)/20),0,F.axisxlabels||null,F.axisxtype||"t"));+b[3]&&(b[3]=c.g.axis(K+q-E,J+f-q,f-2*q,A,m,F.axisystep||Math.floor((f-2*q)/20),1,F.axisylabels||null,F.axisytype||"t"));}F=F||{};var u=this.g.snapEnds(Math.min.apply(Math,w),Math.max.apply(Math,w),w.length-1),B=u.from,n=u.to,q=F.gutter||10,I=this.g.snapEnds(Math.min.apply(Math,v),Math.max.apply(Math,v),v.length-1),A=I.from,m=I.to,z=Math.max(w.length,v.length,r.length),t=this.g.markers[F.symbol]||"disc",G=this.set(),s=this.set(),D=F.max||100,p=Math.max.apply(Math,r),o=[],c=this,N=Math.sqrt(p/Math.PI)*2/D;for(var O=0;O<z;O++){o[O]=Math.min(Math.sqrt(r[O]/Math.PI)*2/N,D);}q=Math.max.apply(Math,o.concat(q));var C=this.set(),E=Math.max.apply(Math,o);if(F.axis){var l=(F.axis+"").split(/[,\s]+/);Q(l);var P=[],S=[];for(var O=0,H=l.length;O<H;O++){var T=l[O].all?l[O].all.getBBox()[["height","width"][O%2]]:0;P[O]=T+q;S[O]=T;}q=Math.max.apply(Math,P.concat(q));for(var O=0,H=l.length;O<H;O++){if(l[O].all){l[O].remove();l[O]=1;}}Q(l);for(var O=0,H=l.length;O<H;O++){if(l[O].all){C.push(l[O].all);}}G.axis=C;}var M=(a-q*2)/((n-B)||1),L=(f-q*2)/((m-A)||1);for(var O=0,H=v.length;O<H;O++){var e=this.raphael.is(t,"array")?t[O]:t,j=K+q+(w[O]-B)*M,h=J+f-q-(v[O]-A)*L;e&&o[O]&&s.push(this.g[e](j,h,o[O]).attr({fill:F.heat?this.g.colorValue(o[O],E):Raphael.fn.g.colors[0],"fill-opacity":F.opacity?o[O]/D:1,stroke:"none"}));}var d=this.set();for(var O=0,H=v.length;O<H;O++){var j=K+q+(w[O]-B)*M,h=J+f-q-(v[O]-A)*L;d.push(this.circle(j,h,E).attr(this.g.shim));F.href&&F.href[O]&&d[O].attr({href:F.href[O]});d[O].r=+o[O].toFixed(3);d[O].x=+j.toFixed(3);d[O].y=+h.toFixed(3);d[O].X=w[O];d[O].Y=v[O];d[O].value=r[O]||0;d[O].dot=s[O];}G.covers=d;G.series=s;G.push(s,C,d);G.hover=function(g,b){d.mouseover(g).mouseout(b);return this;};G.click=function(b){d.click(b);return this;};G.each=function(g){if(!Raphael.is(g,"function")){return this;}for(var b=d.length;b--;){g.call(d[b]);}return this;};G.href=function(k){var g;for(var b=d.length;b--;){g=d[b];if(g.X==k.x&&g.Y==k.y&&g.value==k.value){g.attr({href:k.href});}}};return G;};
+Raphael.fn.g.dotchart = function (x, y, width, height, valuesx, valuesy, size, opts) {
+    function drawAxis(ax) {
+        +ax[0] && (ax[0] = paper.g.axis(x + gutter, y + gutter, width - 2 * gutter, minx, maxx, opts.axisxstep || Math.floor((width - 2 * gutter) / 20), 2, opts.axisxlabels || null, opts.axisxtype || "t"));
+        +ax[1] && (ax[1] = paper.g.axis(x + width - gutter, y + height - gutter, height - 2 * gutter, miny, maxy, opts.axisystep || Math.floor((height - 2 * gutter) / 20), 3, opts.axisylabels || null, opts.axisytype || "t"));
+        +ax[2] && (ax[2] = paper.g.axis(x + gutter, y + height - gutter + maxR, width - 2 * gutter, minx, maxx, opts.axisxstep || Math.floor((width - 2 * gutter) / 20), 0, opts.axisxlabels || null, opts.axisxtype || "t"));
+        +ax[3] && (ax[3] = paper.g.axis(x + gutter - maxR, y + height - gutter, height - 2 * gutter, miny, maxy, opts.axisystep || Math.floor((height - 2 * gutter) / 20), 1, opts.axisylabels || null, opts.axisytype || "t"));
+    }
+    opts = opts || {};
+    var xdim = this.g.snapEnds(Math.min.apply(Math, valuesx), Math.max.apply(Math, valuesx), valuesx.length - 1),
+        minx = xdim.from,
+        maxx = xdim.to,
+        gutter = opts.gutter || 10,
+        ydim = this.g.snapEnds(Math.min.apply(Math, valuesy), Math.max.apply(Math, valuesy), valuesy.length - 1),
+        miny = ydim.from,
+        maxy = ydim.to,
+        len = Math.max(valuesx.length, valuesy.length, size.length),
+        symbol = this.g.markers[opts.symbol] || "disc",
+        res = this.set(),
+        series = this.set(),
+        max = opts.max || 100,
+        top = Math.max.apply(Math, size),
+        R = [],
+        paper = this,
+        k = Math.sqrt(top / Math.PI) * 2 / max;
+
+    for (var i = 0; i < len; i++) {
+        R[i] = Math.min(Math.sqrt(size[i] / Math.PI) * 2 / k, max);
+    }
+    gutter = Math.max.apply(Math, R.concat(gutter));
+    var axis = this.set(),
+        maxR = Math.max.apply(Math, R);
+    if (opts.axis) {
+        var ax = (opts.axis + "").split(/[,\s]+/);
+        drawAxis(ax);
+        var g = [], b = [];
+        for (var i = 0, ii = ax.length; i < ii; i++) {
+            var bb = ax[i].all ? ax[i].all.getBBox()[["height", "width"][i % 2]] : 0;
+            g[i] = bb + gutter;
+            b[i] = bb;
+        }
+        gutter = Math.max.apply(Math, g.concat(gutter));
+        for (var i = 0, ii = ax.length; i < ii; i++) if (ax[i].all) {
+            ax[i].remove();
+            ax[i] = 1;
+        }
+        drawAxis(ax);
+        for (var i = 0, ii = ax.length; i < ii; i++) if (ax[i].all) {
+            axis.push(ax[i].all);
+        }
+        res.axis = axis;
+    }
+    var kx = (width - gutter * 2) / ((maxx - minx) || 1),
+        ky = (height - gutter * 2) / ((maxy - miny) || 1);
+    for (var i = 0, ii = valuesy.length; i < ii; i++) {
+        var sym = this.raphael.is(symbol, "array") ? symbol[i] : symbol,
+            X = x + gutter + (valuesx[i] - minx) * kx,
+            Y = y + height - gutter - (valuesy[i] - miny) * ky;
+        sym && R[i] && series.push(this.g[sym](X, Y, R[i]).attr({fill: opts.heat ? this.g.colorValue(R[i], maxR) : Raphael.fn.g.colors[0], "fill-opacity": opts.opacity ? R[i] / max : 1, stroke: "none"}));
+    }
+    var covers = this.set();
+    for (var i = 0, ii = valuesy.length; i < ii; i++) {
+        var X = x + gutter + (valuesx[i] - minx) * kx,
+            Y = y + height - gutter - (valuesy[i] - miny) * ky;
+        covers.push(this.circle(X, Y, maxR).attr(this.g.shim));
+        opts.href && opts.href[i] && covers[i].attr({href: opts.href[i]});
+        covers[i].r = +R[i].toFixed(3);
+        covers[i].x = +X.toFixed(3);
+        covers[i].y = +Y.toFixed(3);
+        covers[i].X = valuesx[i];
+        covers[i].Y = valuesy[i];
+        covers[i].value = size[i] || 0;
+        covers[i].dot = series[i];
+    }
+    res.covers = covers;
+    res.series = series;
+    res.push(series, axis, covers);
+    res.hover = function (fin, fout) {
+        covers.mouseover(fin).mouseout(fout);
+        return this;
+    };
+    res.click = function (f) {
+        covers.click(f);
+        return this;
+    };
+    res.each = function (f) {
+        if (!Raphael.is(f, "function")) {
+            return this;
+        }
+        for (var i = covers.length; i--;) {
+            f.call(covers[i]);
+        }
+        return this;
+    };
+    res.href = function (map) {
+        var cover;
+        for (var i = covers.length; i--;) {
+            cover = covers[i];
+            if (cover.X == map.x && cover.Y == map.y && cover.value == map.value) {
+                cover.attr({href: map.href});
+            }
+        }
+    };
+    return res;
+};

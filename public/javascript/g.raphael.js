@@ -1,7 +1,475 @@
-/*
+/*!
  * g.Raphael 0.4.1 - Charting library, based on Raphaël
  *
  * Copyright (c) 2009 Dmitry Baranovskiy (http://g.raphaeljs.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
-(function(){var a=Math.max,c=Math.min;Raphael.fn.g=Raphael.fn.g||{};Raphael.fn.g.markers={disc:"disc",o:"disc",flower:"flower",f:"flower",diamond:"diamond",d:"diamond",square:"square",s:"square",triangle:"triangle",t:"triangle",star:"star","*":"star",cross:"cross",x:"cross",plus:"plus","+":"plus",arrow:"arrow","->":"arrow"};Raphael.fn.g.shim={stroke:"none",fill:"#000","fill-opacity":0};Raphael.fn.g.txtattr={font:"12px Arial, sans-serif"};Raphael.fn.g.colors=[];var e=[0.6,0.2,0.05,0.1333,0.75,0];for(var b=0;b<10;b++){if(b<e.length){Raphael.fn.g.colors.push("hsb("+e[b]+", .75, .75)");}else{Raphael.fn.g.colors.push("hsb("+e[b-e.length]+", 1, .5)");}}Raphael.fn.g.text=function(f,h,g){return this.text(f,h,g).attr(this.g.txtattr);};Raphael.fn.g.labelise=function(f,h,g){if(f){return(f+"").replace(/(##+(?:\.#+)?)|(%%+(?:\.%+)?)/g,function(i,k,j){if(k){return(+h).toFixed(k.replace(/^#+\.?/g,"").length);}if(j){return(h*100/g).toFixed(j.replace(/^%+\.?/g,"").length)+"%";}});}else{return(+h).toFixed(0);}};Raphael.fn.g.finger=function(l,k,g,m,h,i,j){if((h&&!m)||(!h&&!g)){return j?"":this.path();}i={square:"square",sharp:"sharp",soft:"soft"}[i]||"round";var o;m=Math.round(m);g=Math.round(g);l=Math.round(l);k=Math.round(k);switch(i){case"round":if(!h){var f=~~(m/2);if(g<f){f=g;o=["M",l+0.5,k+0.5-~~(m/2),"l",0,0,"a",f,~~(m/2),0,0,1,0,m,"l",0,0,"z"];}else{o=["M",l+0.5,k+0.5-f,"l",g-f,0,"a",f,f,0,1,1,0,m,"l",f-g,0,"z"];}}else{f=~~(g/2);if(m<f){f=m;o=["M",l-~~(g/2),k,"l",0,0,"a",~~(g/2),f,0,0,1,g,0,"l",0,0,"z"];}else{o=["M",l-f,k,"l",0,f-m,"a",f,f,0,1,1,g,0,"l",0,m-f,"z"];}}break;case"sharp":if(!h){var n=~~(m/2);o=["M",l,k+n,"l",0,-m,a(g-n,0),0,c(n,g),n,-c(n,g),n+(n*2<m),"z"];}else{n=~~(g/2);o=["M",l+n,k,"l",-g,0,0,-a(m-n,0),n,-c(n,m),n,c(n,m),n,"z"];}break;case"square":if(!h){o=["M",l,k+~~(m/2),"l",0,-m,g,0,0,m,"z"];}else{o=["M",l+~~(g/2),k,"l",1-g,0,0,-m,g-1,0,"z"];}break;case"soft":if(!h){f=c(g,Math.round(m/5));o=["M",l+0.5,k+0.5-~~(m/2),"l",g-f,0,"a",f,f,0,0,1,f,f,"l",0,m-f*2,"a",f,f,0,0,1,-f,f,"l",f-g,0,"z"];}else{f=c(Math.round(g/5),m);o=["M",l-~~(g/2),k,"l",0,f-m,"a",f,f,0,0,1,f,-f,"l",g-2*f,0,"a",f,f,0,0,1,f,f,"l",0,m-f,"z"];}}if(j){return o.join(",");}else{return this.path(o);}};Raphael.fn.g.disc=function(f,h,g){return this.circle(f,h,g);};Raphael.fn.g.line=function(f,h,g){return this.rect(f-g,h-g/5,2*g,2*g/5);};Raphael.fn.g.square=function(f,h,g){g=g*0.7;return this.rect(f-g,h-g,2*g,2*g);};Raphael.fn.g.triangle=function(f,h,g){g*=1.75;return this.path("M".concat(f,",",h,"m0-",g*0.58,"l",g*0.5,",",g*0.87,"-",g,",0z"));};Raphael.fn.g.diamond=function(f,h,g){return this.path(["M",f,h-g,"l",g,g,-g,g,-g,-g,g,-g,"z"]);};Raphael.fn.g.flower=function(j,h,f,g){f=f*1.25;var o=f,m=o*0.5;g=+g<3||!g?5:g;var p=["M",j,h+m,"Q"],l;for(var k=1;k<g*2+1;k++){l=k%2?o:m;p=p.concat([+(j+l*Math.sin(k*Math.PI/g)).toFixed(3),+(h+l*Math.cos(k*Math.PI/g)).toFixed(3)]);}p.push("z");return this.path(p.join(","));};Raphael.fn.g.star=function(f,n,m,h,g){h=h||m*0.382;g=g||5;var l=["M",f,n+h,"L"],k;for(var j=1;j<g*2;j++){k=j%2?m:h;l=l.concat([(f+k*Math.sin(j*Math.PI/g)),(n+k*Math.cos(j*Math.PI/g))]);}l.push("z");return this.path(l.join(","));};Raphael.fn.g.cross=function(f,h,g){g=g/2.5;return this.path("M".concat(f-g,",",h,"l",[-g,-g,g,-g,g,g,g,-g,g,g,-g,g,g,g,-g,g,-g,-g,-g,g,-g,-g,"z"]));};Raphael.fn.g.plus=function(f,h,g){g=g/2;return this.path("M".concat(f-g/2,",",h-g/2,"l",[0,-g,g,0,0,g,g,0,0,g,-g,0,0,g,-g,0,0,-g,-g,0,0,-g,"z"]));};Raphael.fn.g.arrow=function(f,h,g){return this.path("M".concat(f-g*0.7,",",h-g*0.4,"l",[g*0.6,0,0,-g*0.4,g,g*0.8,-g,g*0.8,0,-g*0.4,-g*0.6,0],"z"));};Raphael.fn.g.tag=function(f,m,l,k,i){k=k||0;i=i==null?5:i;l=l==null?"$9.99":l;var h=0.5522*i,g=this.set(),j=3;g.push(this.path().attr({fill:"#000",stroke:"#000"}));g.push(this.text(f,m,l).attr(this.g.txtattr).attr({fill:"#fff","font-family":"Helvetica, Arial"}));g.update=function(){this.rotate(0,f,m);var o=this[1].getBBox();if(o.height>=i*2){this[0].attr({path:["M",f,m+i,"a",i,i,0,1,1,0,-i*2,i,i,0,1,1,0,i*2,"m",0,-i*2-j,"a",i+j,i+j,0,1,0,0,(i+j)*2,"L",f+i+j,m+o.height/2+j,"l",o.width+2*j,0,0,-o.height-2*j,-o.width-2*j,0,"L",f,m-i-j].join(",")});}else{var n=Math.sqrt(Math.pow(i+j,2)-Math.pow(o.height/2+j,2));this[0].attr({path:["M",f,m+i,"c",-h,0,-i,h-i,-i,-i,0,-h,i-h,-i,i,-i,h,0,i,i-h,i,i,0,h,h-i,i,-i,i,"M",f+n,m-o.height/2-j,"a",i+j,i+j,0,1,0,0,o.height+2*j,"l",i+j-n+o.width+2*j,0,0,-o.height-2*j,"L",f+n,m-o.height/2-j].join(",")});}this[1].attr({x:f+i+j+o.width/2,y:m});k=(360-k)%360;this.rotate(k,f,m);k>90&&k<270&&this[1].attr({x:f-i-j-o.width/2,y:m,rotation:[180+k,f,m]});return this;};g.update();return g;};Raphael.fn.g.popupit=function(l,k,m,g,t){g=g==null?2:g;t=t||5;l=Math.round(l);k=Math.round(k);var j=m.getBBox(),n=Math.round(j.width/2),i=Math.round(j.height/2),s=[0,n+t*2,0,-n-t*2],o=[-i*2-t*3,-i-t,0,-i-t],f=["M",l-s[g],k-o[g],"l",-t,(g==2)*-t,-a(n-t,0),0,"a",t,t,0,0,1,-t,-t,"l",0,-a(i-t,0),(g==3)*-t,-t,(g==3)*t,-t,0,-a(i-t,0),"a",t,t,0,0,1,t,-t,"l",a(n-t,0),0,t,!g*-t,t,!g*t,a(n-t,0),0,"a",t,t,0,0,1,t,t,"l",0,a(i-t,0),(g==1)*t,t,(g==1)*-t,t,0,a(i-t,0),"a",t,t,0,0,1,-t,t,"l",-a(n-t,0),0,"z"].join(","),q=[{x:l,y:k+t*2+i},{x:l-t*2-n,y:k},{x:l,y:k-t*2-i},{x:l+t*2+n,y:k}][g];m.translate(q.x-n-j.x,q.y-i-j.y);return this.path(f).attr({fill:"#000",stroke:"none"}).insertBefore(m.node?m:m[0]);};Raphael.fn.g.popup=function(f,l,k,g,i){g=g==null?2:g>3?3:g;i=i||5;k=k||"$9.99";var h=this.set(),j=3;h.push(this.path().attr({fill:"#000",stroke:"#000"}));h.push(this.text(f,l,k).attr(this.g.txtattr).attr({fill:"#fff","font-family":"Helvetica, Arial"}));h.update=function(o,n,q){o=o||f;n=n||l;var t=this[1].getBBox(),u=t.width/2,s=t.height/2,y=[0,u+i*2,0,-u-i*2],v=[-s*2-i*3,-s-i,0,-s-i],m=["M",o-y[g],n-v[g],"l",-i,(g==2)*-i,-a(u-i,0),0,"a",i,i,0,0,1,-i,-i,"l",0,-a(s-i,0),(g==3)*-i,-i,(g==3)*i,-i,0,-a(s-i,0),"a",i,i,0,0,1,i,-i,"l",a(u-i,0),0,i,!g*-i,i,!g*i,a(u-i,0),0,"a",i,i,0,0,1,i,i,"l",0,a(s-i,0),(g==1)*i,i,(g==1)*-i,i,0,a(s-i,0),"a",i,i,0,0,1,-i,i,"l",-a(u-i,0),0,"z"].join(","),x=[{x:o,y:n+i*2+s},{x:o-i*2-u,y:n},{x:o,y:n-i*2-s},{x:o+i*2+u,y:n}][g];x.path=m;if(q){this.animate(x,500,">");}else{this.attr(x);}return this;};return h.update(f,l);};Raphael.fn.g.flag=function(f,k,j,i){i=i||0;j=j||"$9.99";var g=this.set(),h=3;g.push(this.path().attr({fill:"#000",stroke:"#000"}));g.push(this.text(f,k,j).attr(this.g.txtattr).attr({fill:"#fff","font-family":"Helvetica, Arial"}));g.update=function(l,o){this.rotate(0,l,o);var n=this[1].getBBox(),m=n.height/2;this[0].attr({path:["M",l,o,"l",m+h,-m-h,n.width+2*h,0,0,n.height+2*h,-n.width-2*h,0,"z"].join(",")});this[1].attr({x:l+m+h+n.width/2,y:o});i=360-i;this.rotate(i,l,o);i>90&&i<270&&this[1].attr({x:l-r-h-n.width/2,y:o,rotation:[180+i,l,o]});return this;};return g.update(f,k);};Raphael.fn.g.label=function(f,i,h){var g=this.set();g.push(this.rect(f,i,10,10).attr({stroke:"none",fill:"#000"}));g.push(this.text(f,i,h).attr(this.g.txtattr).attr({fill:"#fff"}));g.update=function(){var k=this[1].getBBox(),j=c(k.width+10,k.height+10)/2;this[0].attr({x:k.x-j/2,y:k.y-j/2,width:k.width+j,height:k.height+j,r:j});};g.update();return g;};Raphael.fn.g.labelit=function(h){var g=h.getBBox(),f=c(20,g.width+10,g.height+10)/2;return this.rect(g.x-f/2,g.y-f/2,g.width+f,g.height+f,f).attr({stroke:"none",fill:"#000"}).insertBefore(h.node?h:h[0]);};Raphael.fn.g.drop=function(f,k,j,h,i){h=h||30;i=i||0;var g=this.set();g.push(this.path(["M",f,k,"l",h,0,"A",h*0.4,h*0.4,0,1,0,f+h*0.7,k-h*0.7,"z"]).attr({fill:"#000",stroke:"none",rotation:[22.5-i,f,k]}));i=(i+90)*Math.PI/180;g.push(this.text(f+h*Math.sin(i),k+h*Math.cos(i),j).attr(this.g.txtattr).attr({"font-size":h*12/30,fill:"#fff"}));g.drop=g[0];g.text=g[1];return g;};Raphael.fn.g.blob=function(g,m,l,k,i){k=(+k+1?k:45)+90;i=i||12;var f=Math.PI/180,j=i*12/12;var h=this.set();h.push(this.path().attr({fill:"#000",stroke:"none"}));h.push(this.text(g+i*Math.sin((k)*f),m+i*Math.cos((k)*f)-j/2,l).attr(this.g.txtattr).attr({"font-size":j,fill:"#fff"}));h.update=function(t,s,y){t=t||g;s=s||m;var A=this[1].getBBox(),D=a(A.width+j,i*25/12),z=a(A.height+j,i*25/12),o=t+i*Math.sin((k-22.5)*f),B=s+i*Math.cos((k-22.5)*f),q=t+i*Math.sin((k+22.5)*f),C=s+i*Math.cos((k+22.5)*f),F=(q-o)/2,E=(C-B)/2,p=D/2,n=z/2,x=-Math.sqrt(Math.abs(p*p*n*n-p*p*E*E-n*n*F*F)/(p*p*E*E+n*n*F*F)),v=x*p*E/n+(q+o)/2,u=x*-n*F/p+(C+B)/2;if(y){this.animate({x:v,y:u,path:["M",g,m,"L",q,C,"A",p,n,0,1,1,o,B,"z"].join(",")},500,">");}else{this.attr({x:v,y:u,path:["M",g,m,"L",q,C,"A",p,n,0,1,1,o,B,"z"].join(",")});}return this;};h.update(g,m);return h;};Raphael.fn.g.colorValue=function(i,h,g,f){return"hsb("+[c((1-i/h)*0.4,1),g||0.75,f||0.75]+")";};Raphael.fn.g.snapEnds=function(n,o,m){var k=n,p=o;if(k==p){return{from:k,to:p,power:0};}function q(f){return Math.abs(f-0.5)<0.25?~~(f)+0.5:Math.round(f);}var l=(p-k)/m,g=~~(l),j=g,h=0;if(g){while(j){h--;j=~~(l*Math.pow(10,h))/Math.pow(10,h);}h++;}else{while(!g){h=h||1;g=~~(l*Math.pow(10,h))/Math.pow(10,h);h++;}h&&h--;}p=q(o*Math.pow(10,h))/Math.pow(10,h);if(p<o){p=q((o+0.5)*Math.pow(10,h))/Math.pow(10,h);}k=q((n-(h>0?0:0.5))*Math.pow(10,h))/Math.pow(10,h);return{from:k,to:p,power:h};};Raphael.fn.g.axis=function(v,u,o,G,l,J,m,L,n,g){g=g==null?2:g;n=n||"t";J=J||10;var F=n=="|"||n==" "?["M",v+0.5,u,"l",0,0.001]:m==1||m==3?["M",v+0.5,u,"l",0,-o]:["M",v,u+0.5,"l",o,0],z=this.g.snapEnds(G,l,J),K=z.from,B=z.to,I=z.power,H=0,C=this.set();d=(B-K)/J;var s=K,q=I>0?I:0;w=o/J;if(+m==1||+m==3){var h=u,A=(m-1?1:-1)*(g+3+!!(m-1));while(h>=u-o){n!="-"&&n!=" "&&(F=F.concat(["M",v-(n=="+"||n=="|"?g:!(m-1)*g*2),h+0.5,"l",g*2+1,0]));C.push(this.text(v+A,h,(L&&L[H++])||(Math.round(s)==s?s:+s.toFixed(q))).attr(this.g.txtattr).attr({"text-anchor":m-1?"start":"end"}));s+=d;h-=w;}if(Math.round(h+w-(u-o))){n!="-"&&n!=" "&&(F=F.concat(["M",v-(n=="+"||n=="|"?g:!(m-1)*g*2),u-o+0.5,"l",g*2+1,0]));C.push(this.text(v+A,u-o,(L&&L[H])||(Math.round(s)==s?s:+s.toFixed(q))).attr(this.g.txtattr).attr({"text-anchor":m-1?"start":"end"}));}}else{s=K;q=(I>0)*I;A=(m?-1:1)*(g+9+!m);var k=v,w=o/J,D=0,E=0;while(k<=v+o){n!="-"&&n!=" "&&(F=F.concat(["M",k+0.5,u-(n=="+"?g:!!m*g*2),"l",0,g*2+1]));C.push(D=this.text(k,u+A,(L&&L[H++])||(Math.round(s)==s?s:+s.toFixed(q))).attr(this.g.txtattr));var p=D.getBBox();if(E>=p.x-5){C.pop(C.length-1).remove();}else{E=p.x+p.width;}s+=d;k+=w;}if(Math.round(k-w-v-o)){n!="-"&&n!=" "&&(F=F.concat(["M",v+o+0.5,u-(n=="+"?g:!!m*g*2),"l",0,g*2+1]));C.push(this.text(v+o,u+A,(L&&L[H])||(Math.round(s)==s?s:+s.toFixed(q))).attr(this.g.txtattr));}}var M=this.path(F);M.text=C;M.all=this.set([M,C]);M.remove=function(){this.text.remove();this.constructor.prototype.remove.call(this);};return M;};Raphael.el.lighter=function(g){g=g||2;var f=[this.attrs.fill,this.attrs.stroke];this.fs=this.fs||[f[0],f[1]];f[0]=Raphael.rgb2hsb(Raphael.getRGB(f[0]).hex);f[1]=Raphael.rgb2hsb(Raphael.getRGB(f[1]).hex);f[0].b=c(f[0].b*g,1);f[0].s=f[0].s/g;f[1].b=c(f[1].b*g,1);f[1].s=f[1].s/g;this.attr({fill:"hsb("+[f[0].h,f[0].s,f[0].b]+")",stroke:"hsb("+[f[1].h,f[1].s,f[1].b]+")"});};Raphael.el.darker=function(g){g=g||2;var f=[this.attrs.fill,this.attrs.stroke];this.fs=this.fs||[f[0],f[1]];f[0]=Raphael.rgb2hsb(Raphael.getRGB(f[0]).hex);f[1]=Raphael.rgb2hsb(Raphael.getRGB(f[1]).hex);f[0].s=c(f[0].s*g,1);f[0].b=f[0].b/g;f[1].s=c(f[1].s*g,1);f[1].b=f[1].b/g;this.attr({fill:"hsb("+[f[0].h,f[0].s,f[0].b]+")",stroke:"hsb("+[f[1].h,f[1].s,f[1].b]+")"});};Raphael.el.original=function(){if(this.fs){this.attr({fill:this.fs[0],stroke:this.fs[1]});delete this.fs;}};})();
+ 
+ 
+(function () {
+    var mmax = Math.max,
+        mmin = Math.min;
+    Raphael.fn.g = Raphael.fn.g || {};
+    Raphael.fn.g.markers = {
+        disc: "disc",
+        o: "disc",
+        flower: "flower",
+        f: "flower",
+        diamond: "diamond",
+        d: "diamond",
+        square: "square",
+        s: "square",
+        triangle: "triangle",
+        t: "triangle",
+        star: "star",
+        "*": "star",
+        cross: "cross",
+        x: "cross",
+        plus: "plus",
+        "+": "plus",
+        arrow: "arrow",
+        "->": "arrow"
+    };
+    Raphael.fn.g.shim = {stroke: "none", fill: "#000", "fill-opacity": 0};
+    Raphael.fn.g.txtattr = {font: "12px Arial, sans-serif"};
+    Raphael.fn.g.colors = [];
+    var hues = [.6, .2, .05, .1333, .75, 0];
+    for (var i = 0; i < 10; i++) {
+        if (i < hues.length) {
+            Raphael.fn.g.colors.push("hsb(" + hues[i] + ", .75, .75)");
+        } else {
+            Raphael.fn.g.colors.push("hsb(" + hues[i - hues.length] + ", 1, .5)");
+        }
+    }
+    Raphael.fn.g.text = function (x, y, text) {
+        return this.text(x, y, text).attr(this.g.txtattr);
+    };
+    Raphael.fn.g.labelise = function (label, val, total) {
+        if (label) {
+            return (label + "").replace(/(##+(?:\.#+)?)|(%%+(?:\.%+)?)/g, function (all, value, percent) {
+                if (value) {
+                    return (+val).toFixed(value.replace(/^#+\.?/g, "").length);
+                }
+                if (percent) {
+                    return (val * 100 / total).toFixed(percent.replace(/^%+\.?/g, "").length) + "%";
+                }
+            });
+        } else {
+            return (+val).toFixed(0);
+        }
+    };
+
+    Raphael.fn.g.finger = function (x, y, width, height, dir, ending, isPath) {
+        // dir 0 for horisontal and 1 for vertical
+        if ((dir && !height) || (!dir && !width)) {
+            return isPath ? "" : this.path();
+        }
+        ending = {square: "square", sharp: "sharp", soft: "soft"}[ending] || "round";
+        var path;
+        height = Math.round(height);
+        width = Math.round(width);
+        x = Math.round(x);
+        y = Math.round(y);
+        switch (ending) {
+            case "round":
+            if (!dir) {
+                var r = ~~(height / 2);
+                if (width < r) {
+                    r = width;
+                    path = ["M", x + .5, y + .5 - ~~(height / 2), "l", 0, 0, "a", r, ~~(height / 2), 0, 0, 1, 0, height, "l", 0, 0, "z"];
+                } else {
+                    path = ["M", x + .5, y + .5 - r, "l", width - r, 0, "a", r, r, 0, 1, 1, 0, height, "l", r - width, 0, "z"];
+                }
+            } else {
+                r = ~~(width / 2);
+                if (height < r) {
+                    r = height;
+                    path = ["M", x - ~~(width / 2), y, "l", 0, 0, "a", ~~(width / 2), r, 0, 0, 1, width, 0, "l", 0, 0, "z"];
+                } else {
+                    path = ["M", x - r, y, "l", 0, r - height, "a", r, r, 0, 1, 1, width, 0, "l", 0, height - r, "z"];
+                }
+            }
+            break;
+            case "sharp":
+            if (!dir) {
+                var half = ~~(height / 2);
+                path = ["M", x, y + half, "l", 0, -height, mmax(width - half, 0), 0, mmin(half, width), half, -mmin(half, width), half + (half * 2 < height), "z"];
+            } else {
+                half = ~~(width / 2);
+                path = ["M", x + half, y, "l", -width, 0, 0, -mmax(height - half, 0), half, -mmin(half, height), half, mmin(half, height), half, "z"];
+            }
+            break;
+            case "square":
+            if (!dir) {
+                path = ["M", x, y + ~~(height / 2), "l", 0, -height, width, 0, 0, height, "z"];
+            } else {
+                path = ["M", x + ~~(width / 2), y, "l", 1 - width, 0, 0, -height, width - 1, 0, "z"];
+            }
+            break;
+            case "soft":
+            if (!dir) {
+                r = mmin(width, Math.round(height / 5));
+                path = ["M", x + .5, y + .5 - ~~(height / 2), "l", width - r, 0, "a", r, r, 0, 0, 1, r, r, "l", 0, height - r * 2, "a", r, r, 0, 0, 1, -r, r, "l", r - width, 0, "z"];
+            } else {
+                r = mmin(Math.round(width / 5), height);
+                path = ["M", x - ~~(width / 2), y, "l", 0, r - height, "a", r, r, 0, 0, 1, r, -r, "l", width - 2 * r, 0, "a", r, r, 0, 0, 1, r, r, "l", 0, height - r, "z"];
+            }
+        }
+        if (isPath) {
+            return path.join(",");
+        } else {
+            return this.path(path);
+        }
+    };
+
+    // Symbols
+    Raphael.fn.g.disc = function (cx, cy, r) {
+        return this.circle(cx, cy, r);
+    };
+    Raphael.fn.g.line = function (cx, cy, r) {
+        return this.rect(cx - r, cy - r / 5, 2 * r, 2 * r / 5);
+    };
+    Raphael.fn.g.square = function (cx, cy, r) {
+        r = r * .7;
+        return this.rect(cx - r, cy - r, 2 * r, 2 * r);
+    };
+    Raphael.fn.g.triangle = function (cx, cy, r) {
+        r *= 1.75;
+        return this.path("M".concat(cx, ",", cy, "m0-", r * .58, "l", r * .5, ",", r * .87, "-", r, ",0z"));
+    };
+    Raphael.fn.g.diamond = function (cx, cy, r) {
+        return this.path(["M", cx, cy - r, "l", r, r, -r, r, -r, -r, r, -r, "z"]);
+    };
+    Raphael.fn.g.flower = function (cx, cy, r, n) {
+        r = r * 1.25;
+        var rout = r,
+            rin = rout * .5;
+        n = +n < 3 || !n ? 5 : n;
+        var points = ["M", cx, cy + rin, "Q"],
+            R;
+        for (var i = 1; i < n * 2 + 1; i++) {
+            R = i % 2 ? rout : rin;
+            points = points.concat([+(cx + R * Math.sin(i * Math.PI / n)).toFixed(3), +(cy + R * Math.cos(i * Math.PI / n)).toFixed(3)]);
+        }
+        points.push("z");
+        return this.path(points.join(","));
+    };
+    Raphael.fn.g.star = function (cx, cy, r, r2, rays) {
+        r2 = r2 || r * .382;
+        rays = rays || 5;
+        var points = ["M", cx, cy + r2, "L"],
+            R;
+        for (var i = 1; i < rays * 2; i++) {
+            R = i % 2 ? r : r2;
+            points = points.concat([(cx + R * Math.sin(i * Math.PI / rays)), (cy + R * Math.cos(i * Math.PI / rays))]);
+        }
+        points.push("z");
+        return this.path(points.join(","));
+    };
+    Raphael.fn.g.cross = function (cx, cy, r) {
+        r = r / 2.5;
+        return this.path("M".concat(cx - r, ",", cy, "l", [-r, -r, r, -r, r, r, r, -r, r, r, -r, r, r, r, -r, r, -r, -r, -r, r, -r, -r, "z"]));
+    };
+    Raphael.fn.g.plus = function (cx, cy, r) {
+        r = r / 2;
+        return this.path("M".concat(cx - r / 2, ",", cy - r / 2, "l", [0, -r, r, 0, 0, r, r, 0, 0, r, -r, 0, 0, r, -r, 0, 0, -r, -r, 0, 0, -r, "z"]));
+    };
+    Raphael.fn.g.arrow = function (cx, cy, r) {
+        return this.path("M".concat(cx - r * .7, ",", cy - r * .4, "l", [r * .6, 0, 0, -r * .4, r, r * .8, -r, r * .8, 0, -r * .4, -r * .6, 0], "z"));
+    };
+
+    // Tooltips
+    Raphael.fn.g.tag = function (x, y, text, angle, r) {
+        angle = angle || 0;
+        r = r == null ? 5 : r;
+        text = text == null ? "$9.99" : text;
+        var R = .5522 * r,
+            res = this.set(),
+            d = 3;
+        res.push(this.path().attr({fill: "#000", stroke: "#000"}));
+        res.push(this.text(x, y, text).attr(this.g.txtattr).attr({fill: "#fff", "font-family": "Helvetica, Arial"}));
+        res.update = function () {
+            this.rotate(0, x, y);
+            var bb = this[1].getBBox();
+            if (bb.height >= r * 2) {
+                this[0].attr({path: ["M", x, y + r, "a", r, r, 0, 1, 1, 0, -r * 2, r, r, 0, 1, 1, 0, r * 2, "m", 0, -r * 2 -d, "a", r + d, r + d, 0, 1, 0, 0, (r + d) * 2, "L", x + r + d, y + bb.height / 2 + d, "l", bb.width + 2 * d, 0, 0, -bb.height - 2 * d, -bb.width - 2 * d, 0, "L", x, y - r - d].join(",")});
+            } else {
+                var dx = Math.sqrt(Math.pow(r + d, 2) - Math.pow(bb.height / 2 + d, 2));
+                this[0].attr({path: ["M", x, y + r, "c", -R, 0, -r, R - r, -r, -r, 0, -R, r - R, -r, r, -r, R, 0, r, r - R, r, r, 0, R, R - r, r, -r, r, "M", x + dx, y - bb.height / 2 - d, "a", r + d, r + d, 0, 1, 0, 0, bb.height + 2 * d, "l", r + d - dx + bb.width + 2 * d, 0, 0, -bb.height - 2 * d, "L", x + dx, y - bb.height / 2 - d].join(",")});
+            }
+            this[1].attr({x: x + r + d + bb.width / 2, y: y});
+            angle = (360 - angle) % 360;
+            this.rotate(angle, x, y);
+            angle > 90 && angle < 270 && this[1].attr({x: x - r - d - bb.width / 2, y: y, rotation: [180 + angle, x, y]});
+            return this;
+        };
+        res.update();
+        return res;
+    };
+    Raphael.fn.g.popupit = function (x, y, set, dir, size) {
+        dir = dir == null ? 2 : dir;
+        size = size || 5;
+        x = Math.round(x);
+        y = Math.round(y);
+        var bb = set.getBBox(),
+            w = Math.round(bb.width / 2),
+            h = Math.round(bb.height / 2),
+            dx = [0, w + size * 2, 0, -w - size * 2],
+            dy = [-h * 2 - size * 3, -h - size, 0, -h - size],
+            p = ["M", x - dx[dir], y - dy[dir], "l", -size, (dir == 2) * -size, -mmax(w - size, 0), 0, "a", size, size, 0, 0, 1, -size, -size,
+                "l", 0, -mmax(h - size, 0), (dir == 3) * -size, -size, (dir == 3) * size, -size, 0, -mmax(h - size, 0), "a", size, size, 0, 0, 1, size, -size,
+                "l", mmax(w - size, 0), 0, size, !dir * -size, size, !dir * size, mmax(w - size, 0), 0, "a", size, size, 0, 0, 1, size, size,
+                "l", 0, mmax(h - size, 0), (dir == 1) * size, size, (dir == 1) * -size, size, 0, mmax(h - size, 0), "a", size, size, 0, 0, 1, -size, size,
+                "l", -mmax(w - size, 0), 0, "z"].join(","),
+            xy = [{x: x, y: y + size * 2 + h}, {x: x - size * 2 - w, y: y}, {x: x, y: y - size * 2 - h}, {x: x + size * 2 + w, y: y}][dir];
+        set.translate(xy.x - w - bb.x, xy.y - h - bb.y);
+        return this.path(p).attr({fill: "#000", stroke: "none"}).insertBefore(set.node ? set : set[0]);
+    };
+    Raphael.fn.g.popup = function (x, y, text, dir, size) {
+        dir = dir == null ? 2 : dir > 3 ? 3 : dir;
+        size = size || 5;
+        text = text || "$9.99";
+        var res = this.set(),
+            d = 3;
+        res.push(this.path().attr({fill: "#000", stroke: "#000"}));
+        res.push(this.text(x, y, text).attr(this.g.txtattr).attr({fill: "#fff", "font-family": "Helvetica, Arial"}));
+        res.update = function (X, Y, withAnimation) {
+            X = X || x;
+            Y = Y || y;
+            var bb = this[1].getBBox(),
+                w = bb.width / 2,
+                h = bb.height / 2,
+                dx = [0, w + size * 2, 0, -w - size * 2],
+                dy = [-h * 2 - size * 3, -h - size, 0, -h - size],
+                p = ["M", X - dx[dir], Y - dy[dir], "l", -size, (dir == 2) * -size, -mmax(w - size, 0), 0, "a", size, size, 0, 0, 1, -size, -size,
+                    "l", 0, -mmax(h - size, 0), (dir == 3) * -size, -size, (dir == 3) * size, -size, 0, -mmax(h - size, 0), "a", size, size, 0, 0, 1, size, -size,
+                    "l", mmax(w - size, 0), 0, size, !dir * -size, size, !dir * size, mmax(w - size, 0), 0, "a", size, size, 0, 0, 1, size, size,
+                    "l", 0, mmax(h - size, 0), (dir == 1) * size, size, (dir == 1) * -size, size, 0, mmax(h - size, 0), "a", size, size, 0, 0, 1, -size, size,
+                    "l", -mmax(w - size, 0), 0, "z"].join(","),
+                xy = [{x: X, y: Y + size * 2 + h}, {x: X - size * 2 - w, y: Y}, {x: X, y: Y - size * 2 - h}, {x: X + size * 2 + w, y: Y}][dir];
+            xy.path = p;
+            if (withAnimation) {
+                this.animate(xy, 500, ">");
+            } else {
+                this.attr(xy);
+            }
+            return this;
+        };
+        return res.update(x, y);
+    };
+    Raphael.fn.g.flag = function (x, y, text, angle) {
+        angle = angle || 0;
+        text = text || "$9.99";
+        var res = this.set(),
+            d = 3;
+        res.push(this.path().attr({fill: "#000", stroke: "#000"}));
+        res.push(this.text(x, y, text).attr(this.g.txtattr).attr({fill: "#fff", "font-family": "Helvetica, Arial"}));
+        res.update = function (x, y) {
+            this.rotate(0, x, y);
+            var bb = this[1].getBBox(),
+                h = bb.height / 2;
+            this[0].attr({path: ["M", x, y, "l", h + d, -h - d, bb.width + 2 * d, 0, 0, bb.height + 2 * d, -bb.width - 2 * d, 0, "z"].join(",")});
+            this[1].attr({x: x + h + d + bb.width / 2, y: y});
+            angle = 360 - angle;
+            this.rotate(angle, x, y);
+            angle > 90 && angle < 270 && this[1].attr({x: x - r - d - bb.width / 2, y: y, rotation: [180 + angle, x, y]});
+            return this;
+        };
+        return res.update(x, y);
+    };
+    Raphael.fn.g.label = function (x, y, text) {
+        var res = this.set();
+        res.push(this.rect(x, y, 10, 10).attr({stroke: "none", fill: "#000"}));
+        res.push(this.text(x, y, text).attr(this.g.txtattr).attr({fill: "#fff"}));
+        res.update = function () {
+            var bb = this[1].getBBox(),
+                r = mmin(bb.width + 10, bb.height + 10) / 2;
+            this[0].attr({x: bb.x - r / 2, y: bb.y - r / 2, width: bb.width + r, height: bb.height + r, r: r});
+        };
+        res.update();
+        return res;
+    };
+    Raphael.fn.g.labelit = function (set) {
+        var bb = set.getBBox(),
+            r = mmin(20, bb.width + 10, bb.height + 10) / 2;
+        return this.rect(bb.x - r / 2, bb.y - r / 2, bb.width + r, bb.height + r, r).attr({stroke: "none", fill: "#000"}).insertBefore(set.node ? set : set[0]);
+    };
+    Raphael.fn.g.drop = function (x, y, text, size, angle) {
+        size = size || 30;
+        angle = angle || 0;
+        var res = this.set();
+        res.push(this.path(["M", x, y, "l", size, 0, "A", size * .4, size * .4, 0, 1, 0, x + size * .7, y - size * .7, "z"]).attr({fill: "#000", stroke: "none", rotation: [22.5 - angle, x, y]}));
+        angle = (angle + 90) * Math.PI / 180;
+        res.push(this.text(x + size * Math.sin(angle), y + size * Math.cos(angle), text).attr(this.g.txtattr).attr({"font-size": size * 12 / 30, fill: "#fff"}));
+        res.drop = res[0];
+        res.text = res[1];
+        return res;
+    };
+    Raphael.fn.g.blob = function (x, y, text, angle, size) {
+        angle = (+angle + 1 ? angle : 45) + 90;
+        size = size || 12;
+        var rad = Math.PI / 180,
+            fontSize = size * 12 / 12;
+        var res = this.set();
+        res.push(this.path().attr({fill: "#000", stroke: "none"}));
+        res.push(this.text(x + size * Math.sin((angle) * rad), y + size * Math.cos((angle) * rad) - fontSize / 2, text).attr(this.g.txtattr).attr({"font-size": fontSize, fill: "#fff"}));
+        res.update = function (X, Y, withAnimation) {
+            X = X || x;
+            Y = Y || y;
+            var bb = this[1].getBBox(),
+                w = mmax(bb.width + fontSize, size * 25 / 12),
+                h = mmax(bb.height + fontSize, size * 25 / 12),
+                x2 = X + size * Math.sin((angle - 22.5) * rad),
+                y2 = Y + size * Math.cos((angle - 22.5) * rad),
+                x1 = X + size * Math.sin((angle + 22.5) * rad),
+                y1 = Y + size * Math.cos((angle + 22.5) * rad),
+                dx = (x1 - x2) / 2,
+                dy = (y1 - y2) / 2,
+                rx = w / 2,
+                ry = h / 2,
+                k = -Math.sqrt(Math.abs(rx * rx * ry * ry - rx * rx * dy * dy - ry * ry * dx * dx) / (rx * rx * dy * dy + ry * ry * dx * dx)),
+                cx = k * rx * dy / ry + (x1 + x2) / 2,
+                cy = k * -ry * dx / rx + (y1 + y2) / 2;
+            if (withAnimation) {
+                this.animate({x: cx, y: cy, path: ["M", x, y, "L", x1, y1, "A", rx, ry, 0, 1, 1, x2, y2, "z"].join(",")}, 500, ">");
+            } else {
+                this.attr({x: cx, y: cy, path: ["M", x, y, "L", x1, y1, "A", rx, ry, 0, 1, 1, x2, y2, "z"].join(",")});
+            }
+            return this;
+        };
+        res.update(x, y);
+        return res;
+    };
+
+    Raphael.fn.g.colorValue = function (value, total, s, b) {
+        return "hsb(" + [mmin((1 - value / total) * .4, 1), s || .75, b || .75] + ")";
+    };
+
+    Raphael.fn.g.snapEnds = function (from, to, steps) {
+        var f = from,
+            t = to;
+        if (f == t) {
+            return {from: f, to: t, power: 0};
+        }
+        function round(a) {
+            return Math.abs(a - .5) < .25 ? ~~(a) + .5 : Math.round(a);
+        }
+        var d = (t - f) / steps,
+            r = ~~(d),
+            R = r,
+            i = 0;
+        if (r) {
+            while (R) {
+                i--;
+                R = ~~(d * Math.pow(10, i)) / Math.pow(10, i);
+            }
+            i ++;
+        } else {
+            while (!r) {
+                i = i || 1;
+                r = ~~(d * Math.pow(10, i)) / Math.pow(10, i);
+                i++;
+            }
+            i && i--;
+        }
+        t = round(to * Math.pow(10, i)) / Math.pow(10, i);
+        if (t < to) {
+            t = round((to + .5) * Math.pow(10, i)) / Math.pow(10, i);
+        }
+        f = round((from - (i > 0 ? 0 : .5)) * Math.pow(10, i)) / Math.pow(10, i);
+        return {from: f, to: t, power: i};
+    };
+    Raphael.fn.g.axis = function (x, y, length, from, to, steps, orientation, labels, type, dashsize) {
+        dashsize = dashsize == null ? 2 : dashsize;
+        type = type || "t";
+        steps = steps || 10;
+        var path = type == "|" || type == " " ? ["M", x + .5, y, "l", 0, .001] : orientation == 1 || orientation == 3 ? ["M", x + .5, y, "l", 0, -length] : ["M", x, y + .5, "l", length, 0],
+            ends = this.g.snapEnds(from, to, steps),
+            f = ends.from,
+            t = ends.to,
+            i = ends.power,
+            j = 0,
+            text = this.set();
+        d = (t - f) / steps;
+        var label = f,
+            rnd = i > 0 ? i : 0;
+            dx = length / steps;
+        if (+orientation == 1 || +orientation == 3) {
+            var Y = y,
+                addon = (orientation - 1 ? 1 : -1) * (dashsize + 3 + !!(orientation - 1));
+            while (Y >= y - length) {
+                type != "-" && type != " " && (path = path.concat(["M", x - (type == "+" || type == "|" ? dashsize : !(orientation - 1) * dashsize * 2), Y + .5, "l", dashsize * 2 + 1, 0]));
+                text.push(this.text(x + addon, Y, (labels && labels[j++]) || (Math.round(label) == label ? label : +label.toFixed(rnd))).attr(this.g.txtattr).attr({"text-anchor": orientation - 1 ? "start" : "end"}));
+                label += d;
+                Y -= dx;
+            }
+            if (Math.round(Y + dx - (y - length))) {
+                type != "-" && type != " " && (path = path.concat(["M", x - (type == "+" || type == "|" ? dashsize : !(orientation - 1) * dashsize * 2), y - length + .5, "l", dashsize * 2 + 1, 0]));
+                text.push(this.text(x + addon, y - length, (labels && labels[j]) || (Math.round(label) == label ? label : +label.toFixed(rnd))).attr(this.g.txtattr).attr({"text-anchor": orientation - 1 ? "start" : "end"}));
+            }
+        } else {
+            label = f;
+            rnd = (i > 0) * i;
+            addon = (orientation ? -1 : 1) * (dashsize + 9 + !orientation);
+            var X = x,
+                dx = length / steps,
+                txt = 0,
+                prev = 0;
+            while (X <= x + length) {
+                type != "-" && type != " " && (path = path.concat(["M", X + .5, y - (type == "+" ? dashsize : !!orientation * dashsize * 2), "l", 0, dashsize * 2 + 1]));
+                text.push(txt = this.text(X, y + addon, (labels && labels[j++]) || (Math.round(label) == label ? label : +label.toFixed(rnd))).attr(this.g.txtattr));
+                var bb = txt.getBBox();
+                if (prev >= bb.x - 5) {
+                    text.pop(text.length - 1).remove();
+                } else {
+                    prev = bb.x + bb.width;
+                }
+                label += d;
+                X += dx;
+            }
+            if (Math.round(X - dx - x - length)) {
+                type != "-" && type != " " && (path = path.concat(["M", x + length + .5, y - (type == "+" ? dashsize : !!orientation * dashsize * 2), "l", 0, dashsize * 2 + 1]));
+                text.push(this.text(x + length, y + addon, (labels && labels[j]) || (Math.round(label) == label ? label : +label.toFixed(rnd))).attr(this.g.txtattr));
+            }
+        }
+        var res = this.path(path);
+        res.text = text;
+        res.all = this.set([res, text]);
+        res.remove = function () {
+            this.text.remove();
+            this.constructor.prototype.remove.call(this);
+        };
+        return res;
+    };
+
+    Raphael.el.lighter = function (times) {
+        times = times || 2;
+        var fs = [this.attrs.fill, this.attrs.stroke];
+        this.fs = this.fs || [fs[0], fs[1]];
+        fs[0] = Raphael.rgb2hsb(Raphael.getRGB(fs[0]).hex);
+        fs[1] = Raphael.rgb2hsb(Raphael.getRGB(fs[1]).hex);
+        fs[0].b = mmin(fs[0].b * times, 1);
+        fs[0].s = fs[0].s / times;
+        fs[1].b = mmin(fs[1].b * times, 1);
+        fs[1].s = fs[1].s / times;
+        this.attr({fill: "hsb(" + [fs[0].h, fs[0].s, fs[0].b] + ")", stroke: "hsb(" + [fs[1].h, fs[1].s, fs[1].b] + ")"});
+    };
+    Raphael.el.darker = function (times) {
+        times = times || 2;
+        var fs = [this.attrs.fill, this.attrs.stroke];
+        this.fs = this.fs || [fs[0], fs[1]];
+        fs[0] = Raphael.rgb2hsb(Raphael.getRGB(fs[0]).hex);
+        fs[1] = Raphael.rgb2hsb(Raphael.getRGB(fs[1]).hex);
+        fs[0].s = mmin(fs[0].s * times, 1);
+        fs[0].b = fs[0].b / times;
+        fs[1].s = mmin(fs[1].s * times, 1);
+        fs[1].b = fs[1].b / times;
+        this.attr({fill: "hsb(" + [fs[0].h, fs[0].s, fs[0].b] + ")", stroke: "hsb(" + [fs[1].h, fs[1].s, fs[1].b] + ")"});
+    };
+    Raphael.el.original = function () {
+        if (this.fs) {
+            this.attr({fill: this.fs[0], stroke: this.fs[1]});
+            delete this.fs;
+        }
+    };
+})();
