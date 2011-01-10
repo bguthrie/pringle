@@ -1,8 +1,4 @@
 <div class="storyWall">
-  <div class="header">
-    <h1 class="heading">${view}</h1>
-    <ul class="legend"></ul>
-  </div>
   <div class="body">
     <ul class="wall ${orientation}">
       {{each(i, lane) lanes}}
@@ -12,7 +8,7 @@
           </div>
           <div class="cards">
             {{each(j, card) cards}}
-              <div class="card" id="${card.number}" data-type="${card.card_type.name}" data-modified="${card.modified_on}">
+              <div class="card" style="background-color: ${card.card_type.color}" id="${card.number}" data-type="${card.card_type.name}" data-modified="${card.modified_on}">
                 <div class="header">
                   <div class="number">#${card.number}</div>
                 </div>

@@ -217,4 +217,68 @@
   });
   
   _.bindAll(Pringle.View);
+  
+  Pringle.StoryWall = function(project, attributes) {
+    this.project = project;
+    this.attributes = attributes;
+  };
+  
+  _.extend(Pringle.StoryWall.prototype, {
+    cardMethods: {
+      property: function(name) {
+        return _(this.properties).detect(function(property) {
+          return property.name === name;
+        }).value;
+      }
+    },
+    
+    refreshedAttributes: function(cards, cardTypes) {
+      var self = this,
+          cardTypeIndex,
+          lanes,
+          cardGroups;
+
+      cardTypeIndex = _(cardTypes).inject(function(groups, cardType) {
+        groups[cardType.name] = cardType;
+        return groups;
+      }, {});
+
+      cards = _(cards).map(function(card) {
+        return _.extend(card, self.cardMethods, { card_type: cardTypeIndex[card.card_type.name] });
+      });
+
+      cardGroups = _(cards).inject(function(groups, card) {
+        var groupName = card.property(self.attributes.groupBy);
+
+        if (!groups[groupName]) groups[groupName] = [];
+        groups[groupName].push(card);
+
+        return groups;
+      }, {});
+
+      lanes = _(self.attributes.laneNames).map(function(name) {
+        return { name: name, cards: cardGroups[name] };
+      });
+
+      return _.extend({}, self.attributes, { lanes: lanes, cardTypes: cardTypes })
+    },
+    
+    refresh: function(callback) {
+      var self = this,
+          ex = _.expectation();
+
+      this.project.getCardTypes(ex.expect("cardTypes"));
+
+      this.project.getCards({
+        view: this.attributes.view,
+        page: "all"
+      }, ex.expect("cards"));
+
+      ex.ready(function(returns) {
+        callback(self.refreshedAttributes(returns.cards[0], returns.cardTypes[0]));
+      });
+    }
+  });
+  
+  _.bindAll(Pringle.StoryWall);
 })(jQuery);

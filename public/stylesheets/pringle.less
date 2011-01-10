@@ -1,5 +1,5 @@
 @bgColor: #1e1e1e;
-@headingColor: #222;
+@headingColor: #F15A23;
 @cornerRadius: 4px;
 
 body {
@@ -106,12 +106,6 @@ ul, li {
     }
   }
   
-  .wall {
-    .swimlane {
-      background-color: @bgColor;
-    }
-  }
-  
   .wall.horizontal {
     .swimlane {
       display: inline;
@@ -181,12 +175,14 @@ ul, li {
   }
 
   .wall.vertical {
+    margin-left: auto;
+    margin-right: auto;
+    
     .swimlane {
       display: block;
       width: 130px;
       float: left;
-      border-right: 4px solid black;
-      height: 100%;
+      border-right: 2px solid #888;
 
       > .header {
         -webkit-border-radius: @cornerRadius;
@@ -197,7 +193,7 @@ ul, li {
       }
 
       .cards {
-        height: 90%;
+        height: 400px;
         overflow: hidden;
       }
     }
@@ -278,7 +274,7 @@ ul, li {
     // Slows down fade-ins.
     // -webkit-box-shadow: 0 0 1em #000;
     margin: 0px 20px;
-    background-color: #F15A23;
+    background-color: @headingColor;
     padding: 10px;
     font-size: 80px;
     text-transform: uppercase;
