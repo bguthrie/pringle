@@ -33,7 +33,7 @@ class Mingle
     puts("Path is #{path}; params are #{params.inspect}")
     to_uri(path).get(params)
   end
-
+  
   private
 
     def to_uri(path)
@@ -42,6 +42,28 @@ class Mingle
 end
 
 MINGLE = Mingle.new(:host => MINGLE_HOST, :username => MINGLE_USERNAME, :password => MINGLE_PASSWORD)
+
+class Project
+
+  cattr_accessor :adapter
+  self.adapter = MINGLE
+  
+  def adapter; self.class.adapter; end
+  
+  def initialize(name)
+    @name = name
+  end
+  
+  def query(path, params={})
+    adapter.query("/projects/#{@name}#{path}", params)
+  end
+  
+  def mql(query)
+    query("/cards/execute_mql", :mql => query)
+  end
+  
+end
+
 
 class Pringle < Sinatra::Base
   set :app_file, __FILE__

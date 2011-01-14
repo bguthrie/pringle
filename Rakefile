@@ -25,5 +25,63 @@ task :deploy do
   system "git push heroku master"
 end
 
+desc "Start a MQL console for the given MINGLE_PROJECT"
+task :mqlconsole do |_, args|
+  require 'lib/pringle'
+  require 'readline'
+  include Readline
+  
+  project_name = ENV['MINGLE_PROJECT']  
+  project = Project.new(project_name) unless project_name.blank?
+  
+  loop do
+    line = readline "mql> ", true
+    
+    case line
+    when /exit/i
+      break
+    when /use ['"](\w+)['"]/
+      puts "Using #{$1}"
+      project = Project.new($1)
+    else
+      if project.blank?
+        puts "Must specify a project using 'use'"
+      else
+        response = project.mql(line)
+        mql = response.deserialise
+        
+        case response.code.to_i
+        when 422
+          puts "Error: " + mql["errors"]["error"]
+        when 200
+          results = mql["results"]
+          
+          unless results.empty?
+            columns = results.first.keys
+            max_width = columns.map(&:length).max + 4
+            row_format = ("| %-#{max_width}s" * columns.length) + "|"
+            column_row = row_format % columns
+            
+            divider = "-" * column_row.length
+            
+            puts divider
+            puts column_row
+            puts divider
+            
+            results.each do |row|
+              value_row = row_format % columns.map { |c| row[c] || "<null>" }
+              puts value_row
+            end
+            
+            puts divider
+          end
+          
+          puts "#{results.length} result(s) returned."
+        end
+      end
+    end
+  end
+end
+
 task :default => :spec
 
