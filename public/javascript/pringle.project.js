@@ -129,6 +129,12 @@
       this.views.push(view);
     },
     
+    addChart: function(viewType, model) {
+      var view = new Pringle.Chart(model);
+      view.type = viewType;
+      this.views.push(view);
+    },
+    
     rotate: function(speed, viewIdx) {
       var self = this;
       if (_.isUndefined(viewIdx)) viewIdx = 0;
@@ -209,6 +215,7 @@
     
     render: function(ready) {
       var self = this;
+      
       this.model.refresh(function(data) {
         var html = self.template().tmpl(data);
         return ready(html);
@@ -217,6 +224,27 @@
   });
   
   _.bindAll(Pringle.View);
+  
+  Pringle.Chart = function(model) {
+    this.model = model;
+    this.template = _.memoize(this._template);
+    _.bind(this._template, this);
+  };
+  
+  _.extend(Pringle.Chart.prototype, Pringle.View.prototype, {
+    render: function(ready) {
+      var self = this;
+      
+      this.model.refresh(function(data) {
+        var html = self.template().tmpl(data);
+        var raphael = Raphael(html.find(".chart")[0]);
+        
+        console.log(data);
+      });
+    }
+  });
+
+  _.bindAll(Pringle.Chart);
   
   Pringle.StoryWall = function(project, attributes) {
     this.project = project;
