@@ -36,8 +36,26 @@ task :mqlconsole do |_, args|
   
   loop do
     line = readline "mql> ", true
+    next if line.blank?
     
     case line
+    when /help/i
+      format = "    %-20s %s"
+      
+      puts
+      puts "Commands: "
+      puts
+      puts format % [ "help", "See this message" ]
+      puts format % [ "use '<project>'", "Switch to the named project on Mingle" ]
+      puts format % [ "<query>", "Execute the given query against the current project"]
+      puts
+      puts "Environment: "
+      puts
+      puts format % [ "MINGLE_USERNAME", Project.adapter.username ]
+      puts format % [ "MINGLE_PASSWORD", Project.adapter.password ]
+      puts format % [ "MINGLE_HOST",     Project.adapter.host ]
+      puts format % [ "MINGLE_PROJECT",  project ? project.name : "(none)" ]
+      puts
     when /exit/i
       break
     when /use ['"](\w+)['"]/

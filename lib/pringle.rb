@@ -21,16 +21,17 @@ end
 class Mingle
   MINGLE_API_BASE   = "api/v2"
   CONTENT_TYPE = "xml"
+  
+  attr_reader :host, :username, :password
 
   def initialize(opts={})
     @content_type = opts[:content_type] || CONTENT_TYPE
 
-    host, username, password = opts.values_at(:host, :username, :password)
+    @host, @username, @password = opts.values_at(:host, :username, :password)
     @base_uri = "#{host}/#{MINGLE_API_BASE}".to_uri(:username => username, :password => password, :cache_store => BlackHoleCache.new)
   end
 
   def query(path, params={})
-    puts("Path is #{path}; params are #{params.inspect}")
     to_uri(path).get(params)
   end
   
@@ -44,6 +45,7 @@ end
 MINGLE = Mingle.new(:host => MINGLE_HOST, :username => MINGLE_USERNAME, :password => MINGLE_PASSWORD)
 
 class Project
+  attr_reader :name
 
   cattr_accessor :adapter
   self.adapter = MINGLE
