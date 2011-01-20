@@ -213,12 +213,12 @@
       return $("<div/>").html(template);
     },
     
-    render: function(ready) {
+    render: function(callback) {
       var self = this;
       
       this.model.refresh(function(data) {
         var html = self.template().tmpl(data);
-        return ready(html);
+        return callback(html);
       });
     }
   });
@@ -232,14 +232,17 @@
   };
   
   _.extend(Pringle.Chart.prototype, Pringle.View.prototype, {
-    render: function(ready) {
+    render: function(callback) {
       var self = this;
       
       this.model.refresh(function(data) {
-        var html = self.template().tmpl(data);
-        var raphael = Raphael(html.find(".chart")[0]);
+        var series = data.series,
+            html = self.template().tmpl(data),
+            raphael = Raphael(html.find(".chart")[0]);
+            
+        raphael.g.linechart(20, 20, 320, 200, _(series).pluck("xValues"), _(series).pluck("yValues"), { axis: "0 0 1 1" });
         
-        console.log(data);
+        callback(html);
       });
     }
   });
