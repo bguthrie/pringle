@@ -1,5 +1,4 @@
 require 'sinatra/base'
-require 'less'
 require 'wrest'
 require 'haml'
 require 'active_support/json/encoding'
@@ -21,7 +20,7 @@ end
 class Mingle
   MINGLE_API_BASE   = "api/v2"
   CONTENT_TYPE = "xml"
-  
+
   attr_reader :host, :username, :password
 
   def initialize(opts={})
@@ -34,7 +33,7 @@ class Mingle
   def query(path, params={})
     to_uri(path).get(params)
   end
-  
+
   private
 
     def to_uri(path)
@@ -49,23 +48,21 @@ class Project
 
   cattr_accessor :adapter
   self.adapter = MINGLE
-  
+
   def adapter; self.class.adapter; end
-  
+
   def initialize(name)
     @name = name
   end
-  
+
   def query(path, params={})
     adapter.query("/projects/#{@name}#{path}", params)
   end
-  
+
   def mql(query)
     query("/cards/execute_mql", :mql => query)
   end
-  
 end
-
 
 class Pringle < Sinatra::Base
   set :app_file, __FILE__

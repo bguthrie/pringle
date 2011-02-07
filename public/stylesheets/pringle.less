@@ -1,6 +1,7 @@
 @bgColor: #1e1e1e;
 @headingColor: #F15A23;
 @cornerRadius: 4px;
+@contentHeight: 600px;
 
 body {
   font-family: Helvetica, Arial, sans-serif;
@@ -34,41 +35,51 @@ ul, li {
 
 #content {
   position: relative;
-  
+
   > .body {
     overflow: hidden;
-    margin: 10px 10px 0px 10px;
+    margin: 0 10px 0 10px;
     -webkit-border-radius: @cornerRadius;
+    height: @contentHeight;
+    position: relative;
+
+    > .curtain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: @contentHeight;
+      background-color: @bgColor;
+      display: none;
+      z-index: 1;
+    }
+
+    > .content {
+      height: @contentHeight;
+    }
   }
-  
+
   > .header {
     margin: 8px 0px 8px 32px;
-    
+
     .tw_logo {
       vertical-align: 6;
     }
-    
+
     .mingle_logo {
       vertical-align: -8;
     }
-    
+
     .heading {
       margin-left: 4px;
       border-left: 2px solid #888;
       padding-left: 10px;
-      
+
       vertical-align: 8;
       font-weight: normal;
       font-size: 32px;
       display: inline;
     }
-  }
-}
-
-#content.piechart {
-  .chartBody {
-    background-color: @bgColor;
-    height: 100%;
   }
 }
 
@@ -79,25 +90,25 @@ ul, li {
     top: 0px;
     right: 0px;
     height: 15px;
-    
+
     margin: 4px 10px 0px 10px;
     background-color: @bgColor;
     -webkit-border-radius: @cornerRadius;
     float: right;
     width: 400px;
     padding: 10px;
-    
+
     .legendKey {
       float: left;
       margin-right: 8px;
-      
+
       .color {
         -webkit-border-radius: @cornerRadius;
         float: left;
         width: 10px;
         height: 10px;
       }
-      
+
       .name {
         padding-left: 4px;
         font-size: x-small;
@@ -105,7 +116,7 @@ ul, li {
       }
     }
   }
-  
+
   .wall.horizontal {
     .swimlane {
       display: inline;
@@ -128,7 +139,7 @@ ul, li {
         float: left;
         width: 90%;
       }
-      
+
       .card {
         -webkit-border-radius: @cornerRadius;
         float: left;
@@ -177,7 +188,7 @@ ul, li {
   .wall.vertical {
     margin-left: auto;
     margin-right: auto;
-    
+
     .swimlane {
       display: block;
       width: 130px;
@@ -263,12 +274,12 @@ ul, li {
     letter-spacing: -0.08em;
     line-height: 90%;
   }
-  
+
   .unit {
     display: inline;
     font-size: 30px;
   }
-  
+
   .heading {
     -webkit-border-radius: @cornerRadius;
     // Slows down fade-ins.
@@ -279,7 +290,7 @@ ul, li {
     font-size: 80px;
     text-transform: uppercase;
   }
-  
+
   .caption {
     margin: 10px 30px;
     font-size: 24px;
@@ -287,6 +298,10 @@ ul, li {
     font-style: italic;
     font-weight: 100;
   }
+}
+
+#content .body .chart {
+  height: @contentHeight - 40px;
 }
 
 /*#footer {
@@ -298,27 +313,27 @@ ul, li {
   left: 0px;
   height: 40px;
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #777777), color-stop(6%, #e0e0e0), color-stop(33%, #ffffff));
-  
+
   .logo {
     float: left;
     padding: 10px 10px 0px 10px;
     height: 30px;
   }
-  
+
   #options {
     float: left;
     padding-top: 8px;
     margin-left: 10px;
     input, form { display: inline; }
-    
+
     input[type=text] {
       padding: 4px;
     }
-    
+
     select[name=view] {
       width: 200px;
     }
-    
+
     button {
       -webkit-border-radius: 4px;
       background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D6D8D8), color-stop(50%,#e5ebee), color-stop(51%,#d7dee3), color-stop(100%,#BDBEBF));
@@ -327,7 +342,7 @@ ul, li {
       }
     }
   }
-  
+
   #spinner {
     display: none;
     padding-top: 6px;

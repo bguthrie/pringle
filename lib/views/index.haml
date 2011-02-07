@@ -1,6 +1,7 @@
 %html
   %head
     %title Pringle - Projected Mingle
+    %link{:rel => "stylesheet", :type => "text/css", :href => "/stylesheets/960.css"}
     %link{:rel => "stylesheet/less", :type => "text/css", :href => "/stylesheets/pringle.less"}
     %script{:type => "text/javascript", :src => "/javascript/jquery.js"}t
     %script{:type => "text/javascript", :src => "/javascript/jquery.ui.js"}
@@ -11,18 +12,18 @@
     %script{:type => "text/javascript", :src => "/javascript/underscore.js"}
     %script{:type => "text/javascript", :src => "/javascript/underscore.expectation.js"}
     %script{:type => "text/javascript", :src => "/javascript/backbone.js"}
-    %script{:type => "text/javascript", :src => "/javascript/raphael.js"}
-    %script{:type => "text/javascript", :src => "/javascript/g.raphael.js"}
-    %script{:type => "text/javascript", :src => "/javascript/g.line.js"}
+    %script{:type => "text/javascript", :src => "/javascript/jquery.flot.js"}
     %script{:type => "text/javascript", :src => "/javascript/less-1.0.40.js"}
     %script{:type => "text/javascript", :src => "/javascript/pringle.project.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
 
   %body
-    #content
-      .header
+    #content.container_12
+      .header.grid_12
         %img.tw_logo{:src => "/images/tw_logo.png"}
         %img.mingle_logo{:src => "/images/mingle_logo.png"}
         %h1.heading
-      .body
+      .body.grid_12
+        .curtain
+        .content
         // Stuff goes here.
