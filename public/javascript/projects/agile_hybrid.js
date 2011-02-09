@@ -1,7 +1,7 @@
 Pringle.ready(function() {
   var project = this,
       $root = $("#content .body"),
-      REFRESH_TIME = 1000000;
+      REFRESH_TIME = 10000;
 
   var rotator = new Pringle.ViewRotator($root);
 
