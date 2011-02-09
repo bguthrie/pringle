@@ -32,14 +32,14 @@
     readies.push(callback);
   };
 
-  Pringle.Project = function(name, opts) {
-    this.name = name;
-    this.options = {};
+  Pringle.Project = Class.extend({
+    init: function(name, opts) {
+      this.name = name;
+      this.options = {};
 
-    _.extend(this.options, opts);
-  };
+      _.extend(this.options, opts);
+    },
 
-  _.extend(Pringle.Project.prototype, Backbone.Events, {
     fetch: function(callback) {
       this._mingle("", function(data) {
         this.attributes = data.project;
@@ -115,15 +115,13 @@
     }
   });
 
-  _.bindAll(Pringle.Project);
+  Pringle.ViewRotator = Class.extend({
+    init: function(target) {
+      this.target = target.find(".content");
+      this.curtain = target.find(".curtain");
+      this.views = [];
+    },
 
-  Pringle.ViewRotator = function(target) {
-    this.target = target.find(".content");
-    this.curtain = target.find(".curtain");
-    this.views = [];
-  };
-
-  _.extend(Pringle.ViewRotator.prototype, {
     hide: function(then) {
       this.curtain.fadeIn("slow", then);
     },
@@ -163,15 +161,19 @@
       });
     }
   });
+  
+  Pringle.Model = Class.extend({
+    init: function(project, attributes) {
+      this.project = project;
+      this.attributes = attributes;
+    },
+    
+    refresh: function(callback) {
+      callback(this.attributes);
+    }
+  })
 
-  _.bindAll(Pringle.ViewRotator);
-
-  Pringle.MqlNumber = function(project, attributes) {
-    this.project = project;
-    this.attributes = attributes;
-  };
-
-  _.extend(Pringle.MqlNumber.prototype, {
+  Pringle.MqlNumber = Pringle.Model.extend({
     refresh: function(callback) {
       var self = this;
       this.project.mqlValue(this.attributes.query, function(result) {
@@ -180,37 +182,28 @@
     }
   });
 
-  _.bindAll(Pringle.MqlNumber);
-
-  Pringle.MqlPercent = function(project, attributes) {
-    this.project = project;
-    this.attributes = attributes;
-    this.baseQuery = attributes.queries[0],
-    this.filterQuery = this.baseQuery + " AND " + attributes.queries[1];
-  };
-
-  _.extend(Pringle.MqlPercent.prototype, {
+  Pringle.MqlPercent = Pringle.Model.extend({
     refresh: function(callback) {
-      var self = this;
+      var baseQuery = this.attributes.queries[0],
+          filterQuery = baseQuery + " AND " + this.attributes.queries[1],
+          self = this;
 
-      this.project.mqlValues([ this.filterQuery, this.baseQuery ], function(filter, base) {
+      this.project.mqlValues([ filterQuery, baseQuery ], function(filter, base) {
         var result = ( filter / base ) * 100.0;
         callback(_(self.attributes).extend({ value: result }));
       });
     }
   });
 
-  _.bindAll(Pringle.MqlPercent);
-
   // A view has a model. That model must respond to the refresh function, which accepts a callback that
   // expects to be called with the data with which to render the view.
-  Pringle.View = function(model) {
-    this.model = model;
-    this.template = _.memoize(this._template);
-    _.bind(this._template, this);
-  };
+  Pringle.View = Class.extend({
+    init: function(model) {
+      this.model = model;
+      this.template = _.memoize(this._template);
+      _.bind(this._template, this);
+    },
 
-  _.extend(Pringle.View.prototype, {
     _template: function() {
       var template = $.ajax({
         url: "/templates/" + this.type + ".html",
@@ -230,15 +223,7 @@
     }
   });
 
-  _.bindAll(Pringle.View);
-
-  Pringle.Chart = function(model) {
-    this.model = model;
-    this.template = _.memoize(this._template);
-    _.bind(this._template, this);
-  };
-
-  _.extend(Pringle.Chart.prototype, Pringle.View.prototype, {
+  Pringle.Chart = Pringle.View.extend({
     render: function(target, done) {
       var self = this;
 
@@ -260,14 +245,23 @@
     }
   });
 
-  _.bindAll(Pringle.Chart);
+  Pringle.StoryWall = Pringle.Model.extend({
+    refresh: function(callback) {
+      var self = this,
+          ex = _.expectation();
 
-  Pringle.StoryWall = function(project, attributes) {
-    this.project = project;
-    this.attributes = attributes;
-  };
+      this.project.getCardTypes(ex.expect("cardTypes"));
 
-  _.extend(Pringle.StoryWall.prototype, {
+      this.project.getCards({
+        view: this.attributes.view,
+        page: "all"
+      }, ex.expect("cards"));
+
+      ex.ready(function(returns) {
+        callback(self.refreshedAttributes(returns.cards[0], returns.cardTypes[0]));
+      });
+    },
+    
     cardMethods: {
       property: function(name) {
         return _(this.properties).detect(function(property) {
@@ -305,33 +299,10 @@
       });
 
       return _.extend({}, self.attributes, { lanes: lanes, cardTypes: cardTypes })
-    },
-
-    refresh: function(callback) {
-      var self = this,
-          ex = _.expectation();
-
-      this.project.getCardTypes(ex.expect("cardTypes"));
-
-      this.project.getCards({
-        view: this.attributes.view,
-        page: "all"
-      }, ex.expect("cards"));
-
-      ex.ready(function(returns) {
-        callback(self.refreshedAttributes(returns.cards[0], returns.cardTypes[0]));
-      });
     }
   });
-
-  _.bindAll(Pringle.StoryWall);
   
-  Pringle.BurnupChart = function(project, attributes) {
-    this.project = project;
-    this.attributes = attributes;
-  };
-  
-  _.extend(Pringle.BurnupChart.prototype, {
+  Pringle.BurnupChart = Pringle.Model.extend({
     refresh: function(callback) {
       var self = this,
           ex = _.expectation(),
@@ -408,6 +379,4 @@
       });
     }
   });
-  
-  _.bindAll(Pringle.BurnupChart);
 })(jQuery);
