@@ -267,7 +267,7 @@ ul, li {
   }
 }
 
-#content .body .interestingValue {
+#content .interestingValue {
   .value {
     display: inline;
     font-size: 300px;
@@ -282,8 +282,6 @@ ul, li {
 
   .heading {
     -webkit-border-radius: @cornerRadius;
-    // Slows down fade-ins.
-    // -webkit-box-shadow: 0 0 1em #000;
     margin: 0px 20px;
     background-color: @headingColor;
     padding: 10px;
@@ -300,8 +298,20 @@ ul, li {
   }
 }
 
-#content .body .chart {
-  height: @contentHeight - 40px;
+#content .lineChart {
+  .chart {
+    height: @contentHeight - 140px;
+    margin: 0 20px 20px 20px;
+  }
+  
+  .heading {
+    -webkit-border-radius: @cornerRadius;
+    margin: 0px 20px;
+    background-color: @headingColor;
+    padding: 10px;
+    font-size: 80px;
+    text-transform: uppercase;
+  }
 }
 
 /*#footer {

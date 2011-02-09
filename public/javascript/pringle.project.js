@@ -228,17 +228,41 @@
       var self = this;
 
       this.model.refresh(function(data) {
-        var series = data.series,
-            html = self.template().tmpl(data);
+        var html = self.template().tmpl(data),
+            labels,
+            placeholder,
+            chartData;
+            
+        console.log(data);
 
         target.html(html);
-        var placeholder = target.find(".chart");
+        
+        placeholder = target.find(".chart");
 
-        var chartData = _(series).map(function(line, i) {
-          return _.zip(line.xValues, line.yValues);
+        labels = _(data.allIterationLabels).map(function(label, idx) { 
+          return [ idx, label ]; 
         });
 
-        $.plot(placeholder, chartData, { grid: { show: true, borderWidth: 0 } });
+        chartData = _(data.series).map(function(line, i) {
+          return { label: line.label, data: _.zip(line.xValues, line.yValues) };
+        });
+
+        $.plot(placeholder, chartData, { 
+          grid: { 
+            show: true, 
+            borderWidth: 0,
+            color: "#bbb"
+          },
+          xaxis: { 
+            ticks: labels
+          },
+          legend: {
+            position: "nw",
+            backgroundColor: target.closest("body").css("backgroundColor"),
+            labelBoxBorderColor: "#555",
+            margin: 10
+          }
+        });
 
         if (done) done();
       });

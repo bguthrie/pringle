@@ -1,7 +1,7 @@
 Pringle.ready(function() {
   var project = this,
       $root = $("#content .body"),
-      REFRESH_TIME = 10000;
+      REFRESH_TIME = 1000000;
 
   var rotator = new Pringle.ViewRotator($root);
 
@@ -10,7 +10,7 @@ Pringle.ready(function() {
     cumulative: true,
     xTitle: "Iteration",
     yTitle: "Scope",
-    heading: "Burn-up Chart, Current Release",
+    heading: "Current Release",
     series: [
       {
         label: "Scope",
