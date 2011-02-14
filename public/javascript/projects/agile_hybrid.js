@@ -2,43 +2,77 @@ Pringle.ready(function() {
   var project = this,
       $root = $("#content .body"),
       REFRESH_TIME = 10000;
-
+      
   var rotator = new Pringle.ViewRotator($root);
 
   rotator.addChart("lineChart", new Pringle.BurnupChart(project, {
+    heading: "Planned Work vs. Velocity",
+    conditions: "'Type' = 'Story'",
+    cumulative: true,
+    xAxis: {
+      title: "Iteration",
+      values: "SELECT name, number WHERE 'Type' = 'Iteration'",
+      transform: function(values) {
+        return _(values['results']).map(function(value) {
+          return "#" + value.number + " " + value.name;
+        }).sort();
+      }
+    },
+    yAxis: {
+      title: "Sum Planning Estimate",
+    },
+    series: [
+      {
+        query: "SELECT 'Accepted in Iteration', SUM('Planning Estimate')",
+        conditions: "'Accepted in Iteration' IS NOT NULL",
+        label: "Velocity"
+      }, {
+        query: "SELECT Iteration, SUM('Planning Estimate')",
+        conditions: "Iteration IS NOT NULL",
+        label: "Planned",
+      }
+    ]
+  }));
+
+  rotator.addChart("lineChart", new Pringle.BurnupChart(project, {
+    heading: "Current Release Burn-Up",
     conditions: "'Release' = (Current Release) AND 'Type' = 'Story' AND 'Iteration' IS NOT NULL",
     cumulative: true,
-    xTitle: "Iteration",
-    yTitle: "Scope",
-    heading: "Current Release",
+    xAxis: {
+      title: "Iteration",
+      values: "SELECT name, number WHERE 'Type' = 'Iteration'",
+      transform: function(values) {
+        return _(values['results']).map(function(value) {
+          return "#" + value.number + " " + value.name;
+        }).sort();
+      }
+    },
+    yAxis: {
+      title: "Total Scope"
+    },
     series: [
       {
         label: "Scope",
         color: "black",
-        lineWidth: 1,
         query: "SELECT 'Added to Scope in Iteration', SUM('Planning Estimate')"
       }, {
         label: "Analysis complete",
         color: "green",
-        lineWidth: 2,
         query: "SELECT 'Analysis Completed in Iteration', SUM('Planning Estimate')",
         conditions: "'Analysis Completed in Iteration' IS NOT NULL"
       }, {
         label: "Development complete",
         color: "orange",
-        lineWidth: 2,
         query: "SELECT 'Development Completed in Iteration', SUM('Planning Estimate')",
         conditions: "'Development Completed in Iteration' IS NOT NULL"
       }, {
         label: "QA complete",
         color: "purple",
-        lineWidth: 2,
         query: "SELECT 'QA Completed in Iteration', SUM('Planning Estimate')",
         conditions: "'QA Completed in Iteration' IS NOT NULL"
       }, {
         label: "Accepted",
         color: "blue",
-        lineWidth: 2,
         query: "SELECT 'Accepted in Iteration', SUM('Planning Estimate')",
         conditions: "'Accepted in Iteration' IS NOT NULL"
       }
