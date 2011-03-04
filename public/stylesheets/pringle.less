@@ -40,6 +40,7 @@ ul, li {
     overflow: hidden;
     margin: 0 10px 0 10px;
     -webkit-border-radius: @cornerRadius;
+    -moz-border-radius: @cornerRadius;
     height: @contentHeight;
     position: relative;
 
@@ -94,6 +95,7 @@ ul, li {
     margin: 4px 10px 0px 10px;
     background-color: @bgColor;
     -webkit-border-radius: @cornerRadius;
+    -moz-border-radius: @cornerRadius;
     float: right;
     width: 400px;
     padding: 10px;
@@ -104,6 +106,7 @@ ul, li {
 
       .color {
         -webkit-border-radius: @cornerRadius;
+        -moz-border-radius: @cornerRadius;
         float: left;
         width: 10px;
         height: 10px;
@@ -127,6 +130,7 @@ ul, li {
 
       > .header {
         -webkit-border-radius: @cornerRadius;
+        -moz-border-radius: @cornerRadius;
         background-color: @headingColor;
         padding: 4px;
         text-align: center;
@@ -142,12 +146,15 @@ ul, li {
 
       .card {
         -webkit-border-radius: @cornerRadius;
+        -moz-border-radius: @cornerRadius;
         float: left;
         margin: 8px;
 
         .header {
           -webkit-border-top-left-radius: @cornerRadius;
+          -moz-border-radius-top-left: @cornerRadius;
           -webkit-border-bottom-left-radius: @cornerRadius;
+          -moz-border-bottom-left-radius: @cornerRadius;
           background-color: black;
           color: white;
           opacity: 0.8;
@@ -159,6 +166,7 @@ ul, li {
 
         .body {
           -webkit-border-top-right-radius: @cornerRadius;
+          -moz-border-radius-top-right: @cornerRadius;
           overflow: hidden;
           width: 260px;
           height: 12px;
@@ -197,6 +205,7 @@ ul, li {
 
       > .header {
         -webkit-border-radius: @cornerRadius;
+        -moz-border-radius: @cornerRadius;
         background-color: @headingColor;
         padding: 4px;
         text-align: center;
@@ -211,7 +220,7 @@ ul, li {
 
     .card {
       -webkit-border-radius: @cornerRadius;
-
+      -moz-border-radius: @cornerRadius;
       width: 114px;
       float: left;
       height: 100px;
@@ -282,6 +291,8 @@ ul, li {
 
   .heading {
     -webkit-border-radius: @cornerRadius;
+    -moz-border-radius: @cornerRadius;
+
     margin: 0px 20px;
     background-color: @headingColor;
     padding: 10px;
@@ -306,6 +317,7 @@ ul, li {
   
   .heading {
     -webkit-border-radius: @cornerRadius;
+    -moz-border-radius: @cornerRadius;
     margin: 0px 20px;
     background-color: @headingColor;
     padding: 10px;
@@ -313,52 +325,3 @@ ul, li {
     text-transform: uppercase;
   }
 }
-
-/*#footer {
-  color: black;
-  font-size: small;
-  position: absolute;
-  width: 100%;
-  bottom: 0px;
-  left: 0px;
-  height: 40px;
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #777777), color-stop(6%, #e0e0e0), color-stop(33%, #ffffff));
-
-  .logo {
-    float: left;
-    padding: 10px 10px 0px 10px;
-    height: 30px;
-  }
-
-  #options {
-    float: left;
-    padding-top: 8px;
-    margin-left: 10px;
-    input, form { display: inline; }
-
-    input[type=text] {
-      padding: 4px;
-    }
-
-    select[name=view] {
-      width: 200px;
-    }
-
-    button {
-      -webkit-border-radius: 4px;
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D6D8D8), color-stop(50%,#e5ebee), color-stop(51%,#d7dee3), color-stop(100%,#BDBEBF));
-      :hover {
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ADADAD), color-stop(50%,#D2D7D8), color-stop(51%,#A9AEB2), color-stop(100%,#838384));
-      }
-    }
-  }
-
-  #spinner {
-    display: none;
-    padding-top: 6px;
-    float: left;
-    background: url('/images/spinner2.gif') bottom right no-repeat;
-    width: 30px;
-    height: 20px;
-  }
-}*/
