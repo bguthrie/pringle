@@ -29,7 +29,7 @@ desc "Start a MQL console for the given MINGLE_PROJECT"
 task :mqlconsole do |_, args|
   $: << "lib"
   require 'pringle'
-  Pringle::Console.new(:project => ENV['MINGLE_PROJECT']).loopy
+  Pringle::Console.new(:project => ENV['MINGLE_PROJECT']).start
 end
 
 task :default => :spec
