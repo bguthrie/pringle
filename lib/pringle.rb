@@ -32,5 +32,3 @@ module Pringle
   end
 
 end
-
-Pringle.boot!

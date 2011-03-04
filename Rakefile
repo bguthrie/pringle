@@ -4,11 +4,13 @@
 #   t.pattern = "spec/**/*_spec.rb"
 # end
 
-# require "rspec/core/rake_task"
+require "rspec/core/rake_task"
 
-# desc "Run all Specs"
-#   RSpec::Core::RakeTask.new(:spec) do |t|
-# end
+desc "Run all Specs"
+RSpec::Core::RakeTask.new(:spec) do |t|
+  # raise t.methods.sort.inspect
+  t.pattern = FileList["spec/**/*_spec.rb"]
+end
 
 desc "Run a REPL with the right libs required."
 task :repl do
@@ -29,6 +31,7 @@ desc "Start a MQL console for the given MINGLE_PROJECT"
 task :mqlconsole do |_, args|
   $: << "lib"
   require 'pringle'
+  Pringle.boot!
   Pringle::Console.new(:project => ENV['MINGLE_PROJECT']).start
 end
 

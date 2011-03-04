@@ -9,12 +9,12 @@ module Pringle
 
     get '/mingle/*' do
       content_type "application/json"
-      response = Pringle.client.query("/" + params[:splat].join, params.except("splat"))
+
+      path = "/" + params["splat"].join
+      query = params.except("splat")
+      response = Pringle.client.query(path, query)
 
       case response.code.to_i
-      when 404
-        status 404
-        body ActiveSupport::JSON.encode(:error => "Not Found", :uri => params[:path])
       when 200
         json = ActiveSupport::JSON.encode(response.deserialise)
         if params[:callback]
@@ -22,9 +22,9 @@ module Pringle
         else
           body json
         end
-      else
+      when 400..599
         status response.code.to_i
-        body ActiveSupport::JSON.encode(:error => "Unknown", :uri => params[:path], :text => response.body)
+        body ActiveSupport::JSON.encode(:error => "Error", :uri => path, :text => response.body)
       end
     end
   end
