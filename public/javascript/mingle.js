@@ -1,6 +1,4 @@
-var Mingle = {};
-
-Mingle.Project = Class.extend({
+$.Class("Mingle.Project", {}, {
   init: function(name, opts) {
     this.name = name;
     this.options = {};

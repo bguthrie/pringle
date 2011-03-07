@@ -35,7 +35,7 @@
     Pringle.readies.push(callback);
   };
 
-  Pringle.Viewport = Class.extend({
+  $.Class("Pringle.Viewport", {}, {
     init: function(root) {
       this.root = $(root);
       this.target = this.root.find(".content");
@@ -88,7 +88,7 @@
     }
   });
   
-  Pringle.Model = Class.extend({
+  $.Class("Pringle.Model", {}, {
     init: function(project, attributes) {
       this.project = project;
       this.attributes = attributes;
@@ -108,7 +108,7 @@
     }
   });
 
-  Pringle.MqlPercent = Pringle.Model.extend({
+  Pringle.Model.extend("Pringle.MqlPercent", {}, {
     refresh: function(callback) {
       var baseQuery = this.attributes.queries[0],
           filterQuery = baseQuery + " AND " + this.attributes.queries[1],
@@ -123,7 +123,7 @@
 
   // A view has a model. That model must respond to the refresh function, which accepts a callback that
   // expects to be called with the data with which to render the view.
-  Pringle.View = Class.extend({
+  $.Class("Pringle.View", {}, {
     init: function(model) {
       this.model = model;
       this.template = _.memoize(this._template);
@@ -149,7 +149,7 @@
     }
   });
 
-  Pringle.Chart = Pringle.View.extend({
+  Pringle.View.extend("Pringle.Chart", {}, {
     render: function(target, done) {
       var self = this;
 
@@ -195,7 +195,7 @@
     }
   });
 
-  Pringle.StoryWall = Pringle.Model.extend({
+  Pringle.Model.extend("Pringle.StoryWall", {}, {
     refresh: function(callback) {
       var self = this,
           ex = _.expectation();
@@ -252,7 +252,7 @@
     }
   });
   
-  Pringle.BurnupChart = Pringle.Model.extend({
+  Pringle.Model.extend("Pringle.BurnupChart", {}, {
     refresh: function(callback) {
       var self = this,
           ex = _.expectation(),
