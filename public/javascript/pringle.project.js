@@ -1,7 +1,9 @@
 (function($) {
   window.Pringle = {};
-  var P = window.Pringle,
-      readies = [];
+
+  Pringle.readies = [];
+
+  Pringle.DEFAULT_ROOT = "#content .body";
 
   var addProjectStyleSheet = function(projectName) {
     var link = document.createElement("link");
@@ -16,109 +18,28 @@
     $("head").append(script);
   };
 
-  Pringle.init = function() {
+  Pringle.init = function(viewRoot) {
     var projectName  = window.location.toString().match(/\/pringle\/(\w+)\??/)[1],
-        project      = new Pringle.Project(projectName);
+        project      = new Mingle.Project(projectName),
+        viewport     = new Pringle.Viewport(viewRoot || Pringle.DEFAULT_ROOT)
 
     addProjectStyleSheet(projectName);
     addProjectJavascript(projectName);
 
     project.fetch(function() {
-      _(readies).each(function(ready) { ready.apply(project); });
+      _(Pringle.readies).each(function(ready) { ready(viewport, project); });
     });
   };
 
   Pringle.ready = function(callback) {
-    readies.push(callback);
+    Pringle.readies.push(callback);
   };
 
-  Pringle.Project = Class.extend({
-    init: function(name, opts) {
-      this.name = name;
-      this.options = {};
-
-      _.extend(this.options, opts);
-    },
-
-    fetch: function(callback) {
-      this._mingle("", function(data) {
-        this.attributes = data.project;
-        callback.apply(this);
-      });
-    },
-
-    // Accepts a query and a callback that accepts a MQL response, which is triggered when
-    // the query is complete.
-    mql: function(mql, callback) {
-      console.log("pringle: querying " + mql);
-      this._mingle("/cards/execute_mql", { mql: mql }, callback);
-    },
-
-    // Accepts a query and a callback that expects a single MQL value, which is triggered when
-    // the query is complete.
-    mqlValue: function(mql, callback) {
-      this.mql(mql, function(mqlResult) {
-        var tuple = _(mqlResult.results).first();
-        var value = _(_(tuple).values()).first();
-        callback(parseFloat(value));
-      });
-    },
-
-    // Accepts an array of one or more queries and a callback that expects an array of MQL values,
-    // which is triggered when all queries are complete.
-    mqlValues: function(queries, callback) {
-      var self = this,
-          ex = _.expectation();
-
-      _(queries).each(function(query, idx) {
-        self.mqlValue(query, ex.expect("query" + idx));
-      });
-
-      ex.ready(function(tuples) {
-        callback.apply(this, _(tuples).values().map(function(val) {
-          return _(val).first();
-        }));
-      });
-    },
-
-    _mingle: function(path, params, callback) {
-      if (_.isFunction(params)) {
-        callback = params;
-        params = {};
-      }
-
-      params = typeof(params) === "string" ? params : $.param(params || {});
-      path = "/projects/" + this.name + path;
-      callback = _.bind(callback, this);
-
-      $.get("/mingle" + path, params, callback, "jsonp");
-    },
-
-    // Pull the given property out of the response and push that into the callback to simplify parsing.
-    disassemble: function(property, callback) {
-      return function(mingleResponse) {
-        callback(mingleResponse[property]);
-      };
-    },
-
-    getCardTypes: function(callback) {
-      this._mingle("/card_types", this.disassemble("card_types", callback));
-    },
-
-    getPropertyDefinitions: function(callback) {
-      this._mingle("/property_definitions", this.disassemble("property_definitions", callback));
-    },
-
-    getCards: function(params, callback) {
-      params = _.extend({ page: 1 }, params);
-      this._mingle("/cards", params, this.disassemble("cards", callback));
-    }
-  });
-
-  Pringle.ViewRotator = Class.extend({
-    init: function(target) {
-      this.target = target.find(".content");
-      this.curtain = target.find(".curtain");
+  Pringle.Viewport = Class.extend({
+    init: function(root) {
+      this.root = $(root);
+      this.target = this.root.find(".content");
+      this.curtain = this.root.find(".curtain");
       this.views = [];
     },
 
@@ -128,6 +49,16 @@
 
     show: function(then) {
       this.curtain.fadeOut("slow", then);
+    },
+
+    setView: function(view) {
+      var self = this;
+
+      this.hide(function() {
+        view.render(self.target, function() {
+          self.show();
+        });
+      });
     },
 
     addView: function(viewType, model) {
@@ -144,21 +75,16 @@
 
     rotate: function(speed, viewIdx) {
       var self = this;
+
       if (_.isUndefined(viewIdx)) viewIdx = 0;
       console.log("pringle: Rotating to display view " + viewIdx);
 
-      var ex = _.expectation();
+      this.setView(this.views[viewIdx]);
 
-      this.hide(function() {
-        self.views[viewIdx].render(self.target, function() {
-          self.show();
-
-          setTimeout(function() {
-            var nextViewIdx = ( viewIdx + 1 ) % self.views.length;
-            self.rotate(speed, nextViewIdx);
-          }, speed);
-        });
-      });
+      setTimeout(function() {
+        var nextViewIdx = ( viewIdx + 1 ) % self.views.length;
+        self.rotate(speed, nextViewIdx);
+      }, speed);
     }
   });
   

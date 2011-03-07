@@ -1,11 +1,7 @@
-Pringle.ready(function() {
-  var project = this,
-      $root = $("#content .body"),
-      REFRESH_TIME = 10000;
-      
-  var rotator = new Pringle.ViewRotator($root);
+Pringle.ready(function(viewport, project) {
+  var REFRESH_TIME = 10000;
 
-  rotator.addChart("lineChart", new Pringle.BurnupChart(project, {
+  viewport.addChart("lineChart", new Pringle.BurnupChart(project, {
     heading: "Planned Work vs. Velocity",
     conditions: "'Type' = 'Story'",
     cumulative: true,
@@ -34,7 +30,7 @@ Pringle.ready(function() {
     ]
   }));
 
-  rotator.addChart("lineChart", new Pringle.BurnupChart(project, {
+  viewport.addChart("lineChart", new Pringle.BurnupChart(project, {
     heading: "Current Release Burn-Up",
     conditions: "'Release' = (Current Release) AND 'Type' = 'Story' AND 'Iteration' IS NOT NULL",
     cumulative: true,
@@ -79,54 +75,54 @@ Pringle.ready(function() {
     ]
   }));
   
-  rotator.addView("interestingValue", new Pringle.MqlNumber(project, {
+  viewport.addView("interestingValue", new Pringle.MqlNumber(project, {
     query: "SELECT SUM('Planning Estimate') WHERE 'Type' = 'Story' AND 'Story Status' = 'Accepted' AND 'Release' = (Current Release)",
     heading: "Accepted",
     caption: "Current Release",
     unit: "Story Points"
   }));
   
-  rotator.addView("interestingValue", new Pringle.MqlNumber(project, {
+  viewport.addView("interestingValue", new Pringle.MqlNumber(project, {
     query: "SELECT SUM('Planning Estimate') WHERE 'Type' = 'Story' AND 'Story Status' IN ('Ready for QA', 'Ready for Showcase') AND 'Release' = (Current Release)",
     heading: "Awaiting Signoff",
     caption: "Ready for QA or Showcase, Current Release",
     unit: "Story Points"
   }));
   
-  rotator.addView("interestingValue", new Pringle.MqlNumber(project, {
+  viewport.addView("interestingValue", new Pringle.MqlNumber(project, {
     query: "SELECT COUNT(*) WHERE 'Type' = 'Story' AND 'Story Status' IN ('Ready for QA', 'Ready for Showcase') AND 'Release' = (Current Release)",
     heading: "Awaiting Signoff",
     caption: "Ready for QA or Showcase, Current Release",
     unit: "Total Stories"
   }));
   
-  rotator.addView("interestingValue", new Pringle.MqlPercent(project, {
+  viewport.addView("interestingValue", new Pringle.MqlPercent(project, {
     queries: [ "SELECT SUM('Planning Estimate') WHERE 'Type' = 'Story' AND 'Release' = (Current Release)", "'Story Status' = 'Accepted'" ],
     heading: "Percent Accepted",
     caption: "Current Release",
     unit: "% (Story Points)"
   }));
   
-  rotator.addView("interestingValue", new Pringle.MqlNumber(project, {
+  viewport.addView("interestingValue", new Pringle.MqlNumber(project, {
     query: "SELECT COUNT(*) WHERE 'Type' = 'Story' AND 'Story Status' = 'Blocked' AND 'Release' = (Current Release)",
     heading: "Blocked",
     caption: "Current Release",
     unit: "Total Stories"
   }));
   
-  rotator.addView("interestingValue", new Pringle.MqlNumber(project, {
+  viewport.addView("interestingValue", new Pringle.MqlNumber(project, {
     query: "SELECT COUNT(*) WHERE 'Type' = 'Story' AND 'Story Status' < 'Ready for Development' AND 'Release' = (Current Release)",
     heading: "Analysis Backlog",
     caption: "Current Release",
     unit: "Total Stories"
   }));
   
-  rotator.addView("wall", new Pringle.StoryWall(project, {
+  viewport.addView("wall", new Pringle.StoryWall(project, {
     view: "Story Wall",
     orientation: "vertical",
     groupBy: "Story Status",
     laneNames: ["Open", "Analysis In Progress", "Ready for Development", "Development In Progress", "Ready for QA", "Ready for Showcase"]
   }));
 
-  rotator.rotate(REFRESH_TIME);
+  viewport.rotate(REFRESH_TIME);
 });
