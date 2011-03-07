@@ -39,3 +39,5 @@ task :default => :spec
 
 require 'jasmine'
 load 'jasmine/tasks/jasmine.rake'
+require 'jazz_money'
+# JazzMoney::Runner.from_jasmine_config.call
