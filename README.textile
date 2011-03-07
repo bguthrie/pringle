@@ -4,30 +4,38 @@ Pringle is three things:
 
 * Pringle is a set of attractive visualizations of Mingle data, built and rendered in HTML5, that includes highly visible project metrics like charts and progress numbers, for use with large-format displays like projectors and big-screen televisions. It is designed to be customized to fit your project's data.
 * Pringle is, independently of its visualizations, a Ruby/Sinatra proxy server for the Mingle API. Start it with pre-configured user credentials and it will proxy requests from the host of your choice, translating them into JSON/P along the way. This makes it extremely easy to use Mingle in mashups.
-* Pringle is a Javascript API for submitting and consuming the Mingle API using JSON/P.
+* Pringle is a Javascript API for consuming the Mingle API using JSON/P.
+* Pringle is a command-line console for consuming the Mingle API, similar to a database console.
 
-Pending: Pringle is a an attractive, uncluttered, high-contrast Agile story wall backed by Mingle. It is driven by the author's frustration with the need to maintain, dually, both Mingle and a physical card wall that is manually updated to reflect the "real" state of the project. The author does not think Mingle's story wall view is appropriate for use with a projector.
+Pending: Pringle is a an attractive, uncluttered, high-contrast Agile story wall backed by Mingle. It is driven by the author's frustration with the need to maintain, dually, both Mingle and a physical card wall that is manually updated to reflect the "real" state of the project.
 
-Mingle has been tested using Google Chrome on Windows and Mac and Mingle 3.2 and nothing else. Firefox 4 support is planned. I'm not planning on checking or supporting any other browsers at this time.
+Mingle has been tested using Google Chrome and Firefox 4 on Windows and Mac and Mingle 3.2 and nothing else. Although I like and appreciate the Opera guys, I'm not planning on supporting any other browsers at this time.
 
-h2. Use as a proxy server
+h2. 1. Use as a proxy server
 
 Pringle is a standard Sinatra application. It requires you to configured MINGLE_USERNAME, MINGLE_PASSWORD, and MINGLE_HOST environment variables. Start it like so:
 
-@bundle install@
 @rake server MINGLE_USERNAME=<username> MINGLE_PASSWORD=<password> MINGLE_HOST=http://my.mingle.host:8080@
   
 Nothing more needs to be configured if all you'd like to do is consume the API. I find that calls made through this proxy, while not blazing fast, are generally no worse than waiting for Mingle's standard views to render. Nonetheless, expect to work asynchronously with the AJAX request, as the response might take a while.
 
 Note that your instance of Mingle must be configured to allow HTTP basic authentication. I've also encountered some odd issues where Mingle won't respect the /projects.xml API call; if you run into that, let me know.
 
-h2. Use for more complex visualizations
+h2. 2. Use for more complex visualizations
 
 Because every Mingle project is different, Pringle has to be configured to understand how to interpret your project's unique data and card setup. Because of this, Pringle initialization is very loose--the JS framework configured the data for you and grabs your project's properties by introspecting its URL, and gives you some basic tools for working with the API, but you're more or less on your own at the moment. For an example of how Pringle looks in its default configured, start the server as above, make sure your Mingle instance has the Agile Hybrid sample project installed and configured, and navigate to the following URL:
 
 @http://localhost:4567/pringle/agile_hybrid@
   
 This display cycles through some basic numbers that would be relevant to the project team using the Agile Hybrid template that comes pre-packaged in Mingle.
+
+h2. Use as a command-line console
+
+I wrote a command-line console tool, similar to the a database client, because I got tired of the standard process for debugging my Mingle queries. Run it like so:
+
+@rake mqlconsole MINGLE_USERNAME=<username> MINGLE_PASSWORD=<password> MINGLE_HOST=http://my.mingle.host:8080@
+@mql> use "<project_name>"@
+@mql> SELECT SUM('Planning Estimate') WHERE 'Type' = 'Story' AND 'Story Status' = 'Accepted' AND 'Release' = (Current Release)@
 
 h2. Use as a story wall (Pending)
 
