@@ -10,5 +10,4 @@ group :test do
   gem "rspec", "~> 2.0.0", :require => "spec"
   gem "rack-test", "~> 0.5.4", :require => "rack/test"
   gem "jasmine", "~> 1.0.1.1"
-  gem "jazz_money"
 end

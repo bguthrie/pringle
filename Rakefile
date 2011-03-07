@@ -8,7 +8,6 @@ require "rspec/core/rake_task"
 
 desc "Run all Specs"
 RSpec::Core::RakeTask.new(:spec) do |t|
-  # raise t.methods.sort.inspect
   t.pattern = FileList["spec/**/*_spec.rb"]
 end
 
@@ -39,5 +38,3 @@ task :default => :spec
 
 require 'jasmine'
 load 'jasmine/tasks/jasmine.rake'
-require 'jazz_money'
-# JazzMoney::Runner.from_jasmine_config.call
