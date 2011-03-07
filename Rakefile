@@ -36,3 +36,6 @@ task :mqlconsole do |_, args|
 end
 
 task :default => :spec
+
+require 'jasmine'
+load 'jasmine/tasks/jasmine.rake'
