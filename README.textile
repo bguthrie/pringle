@@ -1,6 +1,6 @@
 h1. Pringle
 
-Pringle is three things:
+Pringle is _n_ things:
 
 * Pringle is a set of attractive visualizations of Mingle data, built and rendered in HTML5, that includes highly visible project metrics like charts and progress numbers, for use with large-format displays like projectors and big-screen televisions. It is designed to be customized to fit your project's data.
 * Pringle is, independently of its visualizations, a Ruby/Sinatra proxy server for the Mingle API. Start it with pre-configured user credentials and it will proxy requests from the host of your choice, translating them into JSON/P along the way. This makes it extremely easy to use Mingle in mashups.
