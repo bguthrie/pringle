@@ -1,6 +1,6 @@
 h1. Pringle
 
-Pringle is three things:
+Pringle is _n_ things:
 
 * Pringle is a set of attractive visualizations of Mingle data, built and rendered in HTML5, that includes highly visible project metrics like charts and progress numbers, for use with large-format displays like projectors and big-screen televisions. It is designed to be customized to fit your project's data.
 * Pringle is, independently of its visualizations, a Ruby/Sinatra proxy server for the Mingle API. Start it with pre-configured user credentials and it will proxy requests from the host of your choice, translating them into JSON/P along the way. This makes it extremely easy to use Mingle in mashups.
@@ -29,7 +29,7 @@ Because every Mingle project is different, Pringle has to be configured to under
   
 This display cycles through some basic numbers that would be relevant to the project team using the Agile Hybrid template that comes pre-packaged in Mingle.
 
-h2. Use as a command-line console
+h2. 3. Use as a command-line console
 
 I wrote a command-line console tool, similar to the a database client, because I got tired of the standard process for debugging my Mingle queries. Run it like so:
 
@@ -37,6 +37,6 @@ I wrote a command-line console tool, similar to the a database client, because I
 @mql> use "<project_name>"@
 @mql> SELECT SUM('Planning Estimate') WHERE 'Type' = 'Story' AND 'Story Status' = 'Accepted' AND 'Release' = (Current Release)@
 
-h2. Use as a story wall (Pending)
+h2. 4. Use as a story wall (Pending)
 
 Presently the story wall isn't working, as other stuff has taken priority. But it used to work, and in principle could so so again. The trouble is in configuration, as each project is slightly different. Most likely this will come in the future via API calls. In the meantime, all of the code for rendering a story wall has been disabled.
