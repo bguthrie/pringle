@@ -56,10 +56,10 @@
       $(window).bind("mousemove", function() {
         if (fadeTimer) clearTimeout(fadeTimer);
 
-        if (navElt.is(":hidden")) navElt.fadeIn();
+        if (navElt.is(":hidden")) navElt.fadeIn("fast");
 
         if (!self.paused) {
-          fadeTimer = setTimeout(function() { navElt.fadeOut(); }, 500);
+          fadeTimer = setTimeout(function() { navElt.fadeOut("fast"); }, 1000);
         }
       });
 
