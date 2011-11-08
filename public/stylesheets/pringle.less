@@ -325,3 +325,31 @@ ul, li {
     text-transform: uppercase;
   }
 }
+
+#content .nav {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+  display: none;
+
+  a {
+    background-color: #1a2746;
+    -webkit-border-radius: @cornerRadius;
+    -moz-border-radius: @cornerRadius;
+    text-decoration: none;
+    color: #eee;
+    font-size: 20px;
+    display: block;
+    float: left;
+    padding: 12px;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    text-align: center;
+    border: 1px solid #555;
+
+    &:hover { background-color: #2e447a; }
+    &.paused { background-color: #555; }
+  }
+}

@@ -42,12 +42,54 @@
       this.target = this.root.find(".content");
       this.curtain = this.root.find(".curtain");
       this.views = [];
+      this.paused = false;
 
       var self = this;
       $(window).bind("statechange", function() {
-        console.log('statechange');
-        self.setView(window.History.getState().data.view);
+        console.log("pringle: Received URL state change event");
+        self.setView(self._currentViewState());
       });
+
+      var fadeTimer = null,
+          navElt = $("#content .nav");
+
+      $(window).bind("mousemove", function() {
+        if (fadeTimer) clearTimeout(fadeTimer);
+
+        if (navElt.is(":hidden")) navElt.fadeIn();
+
+        if (!self.paused) {
+          fadeTimer = setTimeout(function() { navElt.fadeOut(); }, 500);
+        }
+      });
+
+      navElt.find(".prev").click(function(evt) { evt.preventDefault(); self.prev(); });
+
+      navElt.find(".next").click(function(evt) { evt.preventDefault(); self.next(); });
+
+      navElt.find(".pause").click(function(evt) { 
+        evt.preventDefault();
+
+        if (self.paused) {
+          fadeTimer = setTimeout(function() { navElt.fadeOut(); }, 500);
+          $(this).removeClass("paused");
+          self.unpause();
+        } else {
+          if (fadeTimer) clearTimeout(fadeTimer);
+          $(this).addClass("paused"); 
+          self.pause();
+        }
+      });
+    },
+
+    pause: function() {
+      this.paused = true;
+      if (this.nextTimeout) clearTimeout(this.nextTimeout);
+    },
+
+    unpause: function() {
+      this.paused = false;
+      this.next();
     },
 
     hide: function(then) {
@@ -70,11 +112,7 @@
       this.hide(function() {
         view.render(self.target, function() {
           self.show();
-
-          self.nextTimeout = setTimeout(function() {
-            nextViewIdx = ( viewIdx + 1 ) % self.views.length;
-            self._triggerViewChange(nextViewIdx);
-          }, self.rotationSpeed);
+          self._scheduleViewRotation();
         });
       });
     },
@@ -93,17 +131,38 @@
 
     rotate: function(speed, viewIdx) {
       this.rotationSpeed = speed;
-      this._triggerViewChange(viewIdx || this._inferRequestedViewFromParamString());
+      this._triggerViewChange(viewIdx || this._currentViewState());
+    },
+
+    next: function() {
+      this._triggerViewChange(( this._currentViewState() + 1 ) % this.views.length);
+    },
+
+    prev: function() {
+      // Apparently the JS mod operator doesn't work in reverse.
+      var prevViewIdx = ( this._currentViewState() === 0 ? this.views.length : this._currentViewState() ) - 1;
+      this._triggerViewChange(prevViewIdx);
+    },
+
+    _scheduleViewRotation: function() {
+      if (!this.paused) {
+        var self = this;
+        this.nextTimeout = setTimeout(function() { self.next(); }, this.rotationSpeed);
+      }
     },
 
     _triggerViewChange: function(viewIdx) {
       console.log("pringle: Triggering display of view " + viewIdx);
+      console.log("pringle: Next URL is /pringle/" + this.projectName + "?" + viewIdx);
       window.History.pushState({ view: viewIdx }, null, "/pringle/" + this.projectName + "?" + viewIdx);
     },
 
-    _inferRequestedViewFromParamString: function() {
-      return _.isEmpty(window.location.search) ? 0 : 
-        window.location.search.match(/\?(\d+)/)[1];
+    _currentViewState: function() {
+      if (!_(window.location.search).isEmpty()) {
+        return parseInt(window.location.search.match(/\?(\d+).*/)[1], 10);
+      } else {
+        return 0;
+      }
     }
   });
   
