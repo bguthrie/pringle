@@ -45,6 +45,7 @@
 
       var self = this;
       $(window).bind("statechange", function() {
+        console.log('statechange');
         self.setView(window.History.getState().data.view);
       });
     },
@@ -58,14 +59,22 @@
     },
 
     setView: function(viewIdx) {
-      console.log("Showing view " + viewIdx);
-
       var self = this,
           view = self.views[viewIdx];
+
+      console.log("Showing view " + viewIdx);
+
+      if (self.nextTimeout) clearTimeout(self.nextTimeout);
+      self.nextTimeout = null;
 
       this.hide(function() {
         view.render(self.target, function() {
           self.show();
+
+          self.nextTimeout = setTimeout(function() {
+            nextViewIdx = ( viewIdx + 1 ) % self.views.length;
+            self._triggerViewChange(nextViewIdx);
+          }, self.rotationSpeed);
         });
       });
     },
@@ -83,21 +92,18 @@
     },
 
     rotate: function(speed, viewIdx) {
-      var self = this;
+      this.rotationSpeed = speed;
+      this._triggerViewChange(viewIdx || this._inferRequestedViewFromParamString());
+    },
 
-      if (_.isUndefined(viewIdx)) {
-        viewIdx = _.isEmpty(window.location.search) ? 0 :
-          window.location.search.match(/\?(\d+)/)[1];
-      }
-
-      console.log("pringle: Rotate is displaying view " + viewIdx);
-
+    _triggerViewChange: function(viewIdx) {
+      console.log("pringle: Triggering display of view " + viewIdx);
       window.History.pushState({ view: viewIdx }, null, "/pringle/" + this.projectName + "?" + viewIdx);
+    },
 
-      setTimeout(function() {
-        var nextViewIdx = ( viewIdx + 1 ) % self.views.length;
-        self.rotate(speed, nextViewIdx);
-      }, speed);
+    _inferRequestedViewFromParamString: function() {
+      return _.isEmpty(window.location.search) ? 0 : 
+        window.location.search.match(/\?(\d+)/)[1];
     }
   });
   
