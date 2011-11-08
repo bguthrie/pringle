@@ -21,7 +21,7 @@
   Pringle.init = function(viewRoot) {
     var projectName  = window.location.toString().match(/\/pringle\/(\w+)\??/)[1],
         project      = new Mingle.Project(projectName),
-        viewport     = new Pringle.Viewport(viewRoot || Pringle.DEFAULT_ROOT)
+        viewport     = new Pringle.Viewport(projectName, viewRoot || Pringle.DEFAULT_ROOT)
 
     addProjectStyleSheet(projectName);
     addProjectJavascript(projectName);
@@ -36,11 +36,17 @@
   };
 
   $.Class("Pringle.Viewport", {}, {
-    init: function(root) {
+    init: function(projectName, root) {
+      this.projectName = projectName;
       this.root = $(root);
       this.target = this.root.find(".content");
       this.curtain = this.root.find(".curtain");
       this.views = [];
+
+      var self = this;
+      $(window).bind("statechange", function() {
+        self.setView(window.History.getState().data.view);
+      });
     },
 
     hide: function(then) {
@@ -51,8 +57,11 @@
       this.curtain.fadeOut("slow", then);
     },
 
-    setView: function(view) {
-      var self = this;
+    setView: function(viewIdx) {
+      console.log("Showing view " + viewIdx);
+
+      var self = this,
+          view = self.views[viewIdx];
 
       this.hide(function() {
         view.render(self.target, function() {
@@ -76,10 +85,14 @@
     rotate: function(speed, viewIdx) {
       var self = this;
 
-      if (_.isUndefined(viewIdx)) viewIdx = 0;
-      console.log("pringle: Rotating to display view " + viewIdx);
+      if (_.isUndefined(viewIdx)) {
+        viewIdx = _.isEmpty(window.location.search) ? 0 :
+          window.location.search.match(/\?(\d+)/)[1];
+      }
 
-      this.setView(this.views[viewIdx]);
+      console.log("pringle: Rotate is displaying view " + viewIdx);
+
+      window.History.pushState({ view: viewIdx }, null, "/pringle/" + this.projectName + "?" + viewIdx);
 
       setTimeout(function() {
         var nextViewIdx = ( viewIdx + 1 ) % self.views.length;

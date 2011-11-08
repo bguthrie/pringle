@@ -43,7 +43,7 @@
     };
 
     this.isReady = function() {
-      return _(expectations).chain().pluck("called").all().value();
+      return _(expectations).pluck("called").every(_.identity);
     };
     
     this._fire = function() {
