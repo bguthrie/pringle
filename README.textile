@@ -1,5 +1,7 @@
 h1. Pringle
 
+Demo at http://pringle-demo.heroku.com/pringle/pringle_demo.
+
 Pringle is _n_ things:
 
 * Pringle is a set of attractive visualizations of Mingle data, built and rendered in HTML5, that includes highly visible project metrics like charts and progress numbers, for use with large-format displays like projectors and big-screen televisions. It is designed to be customized to fit your project's data.
