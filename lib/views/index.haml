@@ -19,11 +19,13 @@
     %script{:type => "text/javascript", :src => "/javascript/vendor/history.js"}
     %script{:type => "text/javascript", :src => "/javascript/vendor/history.adapter.jquery.js"}
 
+
     %script{:type => "text/javascript", :src => "/javascript/underscore.expectation.js"}
     %script{:type => "text/javascript", :src => "/javascript/mingle.js"}
     %script{:type => "text/javascript", :src => "/javascript/pringle.js"}
     %script{:type => "text/javascript", :src => "/javascript/index.js"}
 
+    %script{:type => "text/coffeescript", :src => "/javascript/mingle.coffee"}
   %body
     #content.container_12
       .header.grid_12
@@ -38,3 +40,5 @@
         .curtain
         .content
         // Stuff goes here.
+
+    %script{:type => "text/javascript", :src => "/javascript/vendor/coffee-script-1.1.3.js"}
