@@ -1,4 +1,4 @@
-$(document).ready(function() {
-  Pringle.init();
-});
+// $(document).ready(function() {
+//   Pringle.init();
+// });
 

@@ -1,6 +1,7 @@
-class MingleProject
+window.Mingle = {}
+
+class Mingle.Project
   constructor: (@name, @options) ->
-    alert("Hello world")
   
   fetch: (callback) ->
     this._mingle "", (data) =>
@@ -20,7 +21,7 @@ class MingleProject
   _mingle: (path, params, callback) ->
     [ callback, params ] = [ params, {} ] if _.isFunction(params)
     params   = $.param(params) if _.isString(params)
-    path     = "/mingle/projects/#{@name}/#{path}"
+    path     = "/mingle/projects/#{@name}#{path}"
     callback = _.bind(callback, this)
 
     $.get(path, params || {}, callback, "jsonp")
