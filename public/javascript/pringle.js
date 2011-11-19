@@ -23,7 +23,6 @@
   Pringle.init = function(viewRoot) {
     var projectName  = window.location.toString().match(/\/pringle\/(\w+)\??/)[1],
         project      = new Mingle.Project(projectName),
-        // project      = new MingleProject(projectName),
         viewport     = new Pringle.Viewport(projectName, viewRoot || Pringle.DEFAULT_ROOT)
 
     addProjectStyleSheet(projectName);

@@ -2,7 +2,7 @@ window.Mingle = {}
 
 class Mingle.Project
   constructor: (@name, @options) ->
-  
+ 
   fetch: (callback) ->
     this._mingle "", (data) =>
       @attributes = data.project
