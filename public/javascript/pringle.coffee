@@ -22,7 +22,7 @@ window.Pringle =
     project      = new Mingle.Project(projectName)
     viewport     = new Pringle.Viewport(projectName, viewRoot || Pringle.DEFAULT_ROOT)
 
-    this.addProjectStyleSheet(projectName)
+    @addProjectStyleSheet(projectName)
 
     ex = _.expectation()
 
@@ -72,20 +72,20 @@ class Pringle.Viewport
     @projectName = projectName
     @root = $(root)
 
-    @target = this.root.find(".content")
-    @curtain = this.root.find(".curtain")
+    @target = @root.find(".content")
+    @curtain = @root.find(".curtain")
     @views = []
     @paused = false
 
     $(window).bind "statechange", () =>
       # This is the only place that should physically reconfigure content.
-      this._changeViewTo this._currentViewState()
+      @_changeViewTo @_currentViewState()
 
   isPaused: () -> @paused
 
   rotate: (speed) ->
     @rotationSpeed = speed
-    this.setView this._currentViewState()
+    @setView @_currentViewState()
 
   pause: () ->
     @paused = true
@@ -93,13 +93,13 @@ class Pringle.Viewport
 
   unpause: () ->
     @paused = false
-    this.next()
+    @next()
 
   hide: (callback) ->
-    this.curtain.fadeIn("slow", callback)
+    @curtain.fadeIn("slow", callback)
   
   show: (callback) ->
-    this.curtain.fadeOut("slow", callback)
+    @curtain.fadeOut("slow", callback)
   
   setView: (viewIdx) ->
     window.History.pushState({ view: viewIdx }, null, "/pringle/#{@projectName}?#{viewIdx}")
@@ -111,10 +111,10 @@ class Pringle.Viewport
     @views.push _(new Pringle.Chart(model)).extend( type: viewType )    
 
   next: () ->
-    this.setView mod((this._currentViewState() + 1), this.views.length)
+    @setView mod((@_currentViewState() + 1), @views.length)
   
   prev: () ->
-    this.setView mod((this._currentViewState() - 1), this.views.length)  
+    @setView mod((@_currentViewState() - 1), @views.length)  
   
   _currentViewState: () ->
     unless _(window.location.search).isEmpty()
@@ -122,8 +122,8 @@ class Pringle.Viewport
     else 0
 
   _scheduleViewRotation: () ->
-    unless this.isPaused()
-      @nextTimeout = delay @rotationSpeed, () => this.next()
+    unless @isPaused()
+      @nextTimeout = delay @rotationSpeed, () => @next()
     
   _changeViewTo: (viewIdx) ->
     view = @views[viewIdx]
@@ -131,10 +131,12 @@ class Pringle.Viewport
     clearTimeout(@nextTimeout) if @nextTimeout?
     @nextTimeout = null
     
-    this.hide () =>
+    @hide () =>
+      console.log "Hiding done; rendering"
       view.render @target, () =>
-        this.show()
-        this._scheduleViewRotation()
+        console.log "Render called, has returned"
+        @show()
+        @_scheduleViewRotation()
 
 class Pringle.Model
   constructor: (@project, @attributes) ->
@@ -160,15 +162,15 @@ class Pringle.MqlPercent extends Pringle.Model
 class Pringle.View
   constructor: (model) ->
     @model = model
-    @template = _.memoize(this._template)
-    _.bind(this._template, this)
+    @template = _.memoize(@_template)
+    _.bind(@_template, this)
   
   _template: () ->
     $("<div/>").html $.ajax( url: "/templates/#{@type}.html", async: false ).responseText
   
   render: (target, done) ->
-    this.model.refresh (data) =>
-      target.html this.template().tmpl(data)
+    @model.refresh (data) =>
+      target.html @template().tmpl(data)
       done() if done?
 
 class Pringle.Chart extends Pringle.View
@@ -208,7 +210,7 @@ class Pringle.BurnupChart extends Pringle.Model
     allIterationLabels = []
 
     _(@attributes.series).each (lineAttributes) =>
-      conditions = _([ @attributes.conditions, lineAttributes.conidtions ]).compact().join(" AND ")
+      conditions = _([ @attributes.conditions, lineAttributes.conditions ]).compact().join(" AND ")
       newQuery = "#{lineAttributes.query} WHERE #{conditions}"
 
       @project.mql newQuery, ex.expect(lineAttributes.label)
@@ -220,43 +222,38 @@ class Pringle.BurnupChart extends Pringle.Model
       if !@attributes.xAxisLabels? && returns.xValues?
         @attributes.xAxisLabels = @attributes.xAxis.transform(returns.xValues[0])
       
-      _(@attributes.series).each (lineAttributes) =>
+      for lineAttributes in @attributes.series
         lineResults = returns[lineAttributes.label][0]["results"]
-        values = @buildValues lineResults, @attributes.xAxisLabels, @attributes.cumulative
+        values = @dataSeriesFor @attributes.xAxisLabels, lineResults, @attributes.cumulative
 
-        lineAttributes.xValues = val.x for val in values
-        lineAttributes.yValues = val.y for val in values
+        lineAttributes.yValues = values
+        lineAttributes.xValues = ( n for n in [0..values.length] )
 
-        callback(@attributes)
+      callback(@attributes)
   
-  buildValues: (results, allIterationLabels, isYvalueCumulative) ->
-    resultSet = _(results).values()
-    allValues = _(resultSet).values()
+  # Accepts a list of query results that may or may not include values for all iterations defined
+  # in the given list of labels and returns a normalized list of values for each label.
+  # If isYValueCumulative is true, values will be monotonically increasing.
+  dataSeriesFor: (allIterationLabels, queryResults, isYValueCumulative) ->
     rowCumMemo = 0
-
-    valuesByIteration = _(allValues).inject (memo, row) =>
-      _(row).values().each (tupleMember) =>
-        if tupleMember.match(/^(\d|\.)+$/)
-          dataValue = parseInt(tupleMember, 10)
-        else
-        dataLabel = tupleMember
-
+    adjustedValues = for row in queryResults
+      tuple = _(row).values()
+      [ dataLabel, dataValue ] = if tuple[0].match(/^(\d|\.)+$/)
+      then [ tuple[1], parseInt(tuple[0], 10) ]
+      else [ tuple[0], parseInt(tuple[1], 10) ]
+      
       if isYValueCumulative
         dataValue = rowCumMemo = dataValue + rowCumMemo
 
-      memo[dataLabel] = dataValue
-
-      memo
+      { label: dataLabel, value: dataValue }
     
-    # Normalize in terms of available iterations.
-    iterationMemo = 0
-    _(allIterationLabels).map (label, idx) =>
-      foundValue = valuesByIteration[label]
+    valuesByIteration = _(adjustedValues).inject ( (memo, row) -> memo[row.label] = row.value; memo ), {}
 
-      # Keep values at whatever previous value was recorded; don't reset to zero.
-      iteration = foundValue if foundValue
-
-      { x: idx, y: foundValue || iterationMemo }
+    lastFoundValue = 0
+    for label in allIterationLabels
+      currentValue   = valuesByIteration[label]
+      lastFoundValue = currentValue if currentValue?
+      currentValue or lastFoundValue 
 
 # (function($) {
 #   var Mingle = window.Mingle;
