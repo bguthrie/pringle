@@ -7,7 +7,7 @@ Pringle.ready (viewport, project) ->
     cumulative: true
     xAxis:
       title: "Iteration"
-      values: "SELECT name, number WHERE 'Type' = 'Iteration'"
+      values: "SELECT name, number WHERE 'Type' = 'Iteration' ORDER BY number"
       transform: (values) -> "##{value.number} #{value.name}" for value in values.results
     yAxis:
       title: "Sum Planning Estimate"
@@ -30,7 +30,7 @@ Pringle.ready (viewport, project) ->
     cumulative: true
     xAxis:
       title: "Iteration"
-      values: "SELECT name, number WHERE 'Type' = 'Iteration'"
+      values: "SELECT name, number WHERE 'Type' = 'Iteration' ORDER BY number"
       transform: (values) -> "##{value.number} #{value.name}" for value in values.results
     yAxis:
       title: "Total Scope"
@@ -105,11 +105,11 @@ Pringle.ready (viewport, project) ->
     unit: "Total Stories"
   )
   
-  # viewport.addView "wall", new Pringle.StoryWall(project,
-  #   view: "Story Wall"
-  #   orientation: "vertical"
-  #   groupBy: "Story Status"
-  #   laneNames: ["Open", "Analysis In Progress", "Ready for Development", "Development In Progress", "Ready for QA", "Ready for Showcase"]
-  # )
+  viewport.addView "wall", new Pringle.StoryWall(project,
+    view: "Story Wall"
+    orientation: "vertical"
+    groupBy: "Story Status"
+    laneNames: ["Open", "Analysis In Progress", "Ready for Development", "Development In Progress", "Ready for QA", "Ready for Showcase"]
+  )
 
   viewport.rotate REFRESH_TIME
