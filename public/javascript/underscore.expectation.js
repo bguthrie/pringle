@@ -2,15 +2,15 @@
 //
 // var f = $.expectation();
 // 
-// $.get("/foo", f.expect("foo"));
-// $.get("/bar", f.expect("bar"));
+// $.get("/foo").then(f.expect("foo"));
+// $.get("/bar").then(f.expect("bar"));
 // 
 // f.ready(function(data) {
 //   renderSomething(data.foo, data.bar);
 // })
 //
 // Todo:
-// * Add error handling for unexpected invocations.
+// * Retrofit this into jQuery promises. Remove Underscore dependency.
 
 (function() {
   _.mixin({

@@ -159,9 +159,6 @@ class Pringle.MqlPercent extends Pringle.Model
     filterQuery = "#{baseQuery} AND #{filter}"
 
     redefer @project.mqlValues([ baseQuery, filterQuery ]), (baseValue, filterValue) =>
-      console.log("We've returned from MqlPercent")
-      console.log(baseValue)
-      console.log(filterValue)
       _(@attributes).extend value: ( filterValue / baseValue ) * 100.0
 
 class Pringle.View
