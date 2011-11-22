@@ -3,48 +3,46 @@ window.Mingle = {}
 class Mingle.Project
   constructor: (@name, @options) ->
  
-  fetch: (callback) ->
-    this._mingle "", (data) =>
-      @attributes = data.project
-      callback(this)
+  fetch: () ->
+    _.tap $.Deferred(), (def) =>
+      this._mingle("").then (data) =>
+        @attributes = data.project
+        def.resolve(this)
 
-  mql: (mql, callback) ->
+  mql: (mql) ->
     console.log("pringle: querying #{mql}")
-    this._mingle("/cards/execute_mql", { mql: mql }, callback)
+    this._mingle "/cards/execute_mql", mql: mql
   
-  mqlValue: (mql, callback) ->
-    this.mql mql, (mqlResult) =>
-      tuple = _(mqlResult.results).first()
-      value = _(_(tuple).values()).first()
-      callback(parseFloat(value))
+  mqlValue: (mql) ->
+    _.tap $.Deferred(), (def) =>
+      @mql(mql).then (mqlResult) =>
+        tuple = _(mqlResult.results).first()
+        value = _(_(tuple).values()).first()
+        def.resolve parseFloat(value)
 
-  _mingle: (path, params, callback) ->
-    [ callback, params ] = [ params, {} ] if _.isFunction(params)
-    params   = $.param(params) if _.isString(params)
-    path     = "/mingle/projects/#{@name}#{path}"
-    callback = _.bind(callback, this)
+  _mingle: (path, params) ->
+    params = $.param(params) if _.isString(params)
+    path   = "/mingle/projects/#{@name}#{path}"
 
-    $.get(path, params || {}, callback, "jsonp")
+    $.get(path, params || {}, "jsonp")
   
-  mqlValues: (queries, callback) ->
-    ex = _.expectation()
+  mqlValues: (queries) ->
+    _.tap $.Deferred(), (def) =>
+      ex = _.expectation()
 
-    _(queries).each (query, idx) =>
-      this.mqlValue query, ex.expect("query#{idx}")
+      @mqlValue(query).then(ex.expect(query)) for query in queries
+      ex.ready (returns) -> def.resolve _(returns).values()...
 
-    ex.ready (tuples) =>
-      callback.apply this, _(tuples).values().map (val) => val[0]
+  disassemble: (property, promise) ->
+    _.tap $.Deferred(), (def) ->
+      promise.then (response) -> def.resolve response[property]
 
-  disassemble: (property, callback) ->
-    (mingleResponse) ->
-      callback(mingleResponse[property])
-
-  getCardTypes: (callback) ->
-    this._mingle "/card_types", this.disassemble("card_types", callback)
+  getCardTypes: () ->
+    @disassemble "card_types", @_mingle("/card_types")
   
-  getPropertyDefinitions: (callback) ->
-    this._mingle "/property_definitions", this.disassemble("property_definitions", callback)
+  getPropertyDefinitions: () ->
+    @disassemble "property_definitions", @_mingle("/property_definitions")
 
-  getCards: (params, callback) ->
-    params = $.extend({ page: 1 }, params)
-    this._mingle "/cards", $.extend({ page: 1 }, params), this.disassemble("cards", callback)
+  getCards: (params) ->
+    _.extend params, page: 1
+    @disassemble "cards", @_mingle("/cards", params)
