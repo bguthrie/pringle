@@ -9,6 +9,8 @@ Pending: Pringle is a an attractive, uncluttered, high-contrast Agile story wall
 
 Mingle has been tested using Google Chrome and Firefox on Windows and Mac, and supports Mingle 3.2-3.4.
 
+Like this code? Endorse me on Coderwall: [![endorse](http://api.coderwall.com/bguthrie/endorsecount.png)](http://coderwall.com/bguthrie)
+
 Getting Started
 ---------------
 
