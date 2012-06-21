@@ -1,5 +1,5 @@
 $ = window.jQuery
-L = window.less
+less = window.less
 
 delay = (ms, fn) -> setTimeout(fn, ms)
 mod   = (n, y) -> n - Math.floor(n / y) * y
@@ -7,37 +7,32 @@ mod   = (n, y) -> n - Math.floor(n / y) * y
 # Accepts a promise and a transformation function and returns a new
 # Deferred that resolves with the result of the transformation applied.
 redefer = (promise, fn) ->
-  _.tap $.Deferred(), (def) ->
-    promise.then (args...) -> def.resolve fn(args...)
+  deferred = $.Deferred()
+  promise.then (args...) -> def.resolve fn(args...)
+  deferred
 
 window.Pringle =
   DEFAULT_ROOT: "#content .body"
 
   readies: []
 
-  addProjectStyleSheet: (projectName) ->
-    L.sheets.push _(document.createElement("link")).extend
+  addProjectStyleSheet: (presentationName) ->
+    less.sheets.push _(document.createElement("link")).extend
       rel: "stylesheet/less", 
       type: "text/css", 
-      href: "/stylesheets/projects/#{projectName}.less"
+      href: "/stylesheets/projects/#{presentationName}.less"
 
-    L.refresh()
+    less.refresh()
 
   init: (viewRoot) ->
-    projectName  = window.location.toString().match(/\/pringle\/(\w+)\??/)[1]
-    project      = new Mingle.Project(projectName)
-    viewport     = new Pringle.Viewport(projectName, viewRoot || Pringle.DEFAULT_ROOT)
+    presentationName  = window.location.pathname.match(/\/pringle\/(\w+)\??/)[1]
+    viewport          = new Pringle.Viewport(presentationName, viewRoot || Pringle.DEFAULT_ROOT)
 
-    @addProjectStyleSheet(projectName)
+    @addProjectStyleSheet(presentationName)
 
-    ex = _.expectation()
-
-    CoffeeScript.load "/javascript/projects/#{projectName}.coffee", ex.expect("config")
-    project.fetch().then ex.expect("project")
-
-    ex.ready () ->
+    CoffeeScript.load "/javascript/projects/#{presentationName}.coffee", () ->
       nav = new Pringle.ViewportNavigationBar(viewport)
-      callback(viewport, project) for callback in Pringle.readies
+      callback(viewport) for callback in Pringle.readies
   
   ready: (callback) ->
     @readies.push callback
@@ -73,8 +68,8 @@ class Pringle.ViewportNavigationBar
         viewport.pause()
 
 class Pringle.Viewport
-  constructor: (projectName, root) ->
-    @projectName = projectName
+  constructor: (presentationName, root) ->
+    @presentationName = presentationName
     @root = $(root)
 
     @target = @root.find(".content")
@@ -107,13 +102,14 @@ class Pringle.Viewport
     @curtain.fadeOut("slow")
   
   setView: (viewIdx) ->
-    window.History.pushState({ view: viewIdx }, null, "/pringle/#{@projectName}?#{viewIdx}")
+    window.History.pushState({ view: viewIdx }, null, "/pringle/#{@presentationName}?#{viewIdx}")
         
-  addView: (viewType, model) ->
-    @views.push new Pringle.View(model, viewType)
+  add: (view) ->
+    console.log("adding a view")
+    @views.push new Pringle.View(view)
 
-  addChart: (viewType, model) ->
-    @views.push new Pringle.Chart(model, viewType)
+  # addChart: (viewType, model) ->
+  #   @views.push new Pringle.Chart(model, viewType)
 
   next: () ->
     @setView mod((@_currentViewState() + 1), @views.length)
@@ -137,40 +133,25 @@ class Pringle.Viewport
     @nextTimeout = null
     
     $.when(@hide()).then () =>
+      console.log("have hidden")
       view.render(@target).then () =>
+        console.log("have rendered")
         @show()
+        console.log("have showed")
         @_scheduleViewRotation()
 
-class Pringle.Model
-  constructor: (@project, @attributes) ->
-
-  refresh: () ->
-    _.tap $.Deferred(), (def) => def.resolve @attributes
-
-class Pringle.MqlNumber extends Pringle.Model
-  refresh: () ->
-    redefer @project.mqlValue(@attributes.query), (result) =>
-      _(@attributes).extend value: result
-
-class Pringle.MqlPercent extends Pringle.Model
-  refresh: () ->
-    baseQuery   = @attributes.queries[0]
-    filter      = @attributes.queries[1]
-    filterQuery = "#{baseQuery} AND #{filter}"
-
-    redefer @project.mqlValues([ baseQuery, filterQuery ]), (baseValue, filterValue) =>
-      _(@attributes).extend value: ( filterValue / baseValue ) * 100.0
-
 class Pringle.View
-  constructor: (model, type) ->
-    @model = model
-    @type = type
+  constructor: (attributes) ->
+    @attributes = attributes
+    @type = attributes.type
     rawTemplate = $.ajax( url: "/templates/#{@type}.html", async: false ).responseText
     @template = $("<div/>").html rawTemplate
   
   render: (target) ->
-    redefer @model.refresh(), (data) =>
-      target.html @template.tmpl(data)
+    def = $.Deferred()
+    console.log("I'm being called")
+    target.html @template.tmpl(@attributes)
+    def.resolve()
 
 class Pringle.Chart extends Pringle.View
   render: (target) ->
@@ -200,84 +181,3 @@ class Pringle.Chart extends Pringle.View
           labelBoxBorderColor: "#555"
           margin: 10
       }
-
-class Pringle.BurnupChart extends Pringle.Model
-  refresh: () ->
-    ex = _.expectation()
-    allIterationLabels = []
-
-    _(@attributes.series).each (lineAttributes) =>
-      conditions = _([ @attributes.conditions, lineAttributes.conditions ]).compact().join(" AND ")
-      newQuery = "#{lineAttributes.query} WHERE #{conditions}"
-
-      @project.mql(newQuery).then ex.expect(lineAttributes.label)
-
-    if @attributes.xAxis?.values?
-      @project.mql(@attributes.xAxis.values).then ex.expect("xLabels")
-
-    _.tap $.Deferred(), (def) =>
-      ex.ready (returns) =>
-        if !@attributes.xAxisLabels? && returns.xLabels?
-          @attributes.xAxisLabels = @attributes.xAxis.transform(returns.xLabels[0])
-
-        for lineAttributes in @attributes.series
-          lineResults = returns[lineAttributes.label][0]["results"]
-          valuesByIteration = @indexResultsByIteration lineResults
-          values = @dataSeriesFor @attributes.xAxisLabels, valuesByIteration
-
-          lineAttributes.yValues = values
-          lineAttributes.xValues = ( n for n in [0..values.length] )
-
-        def.resolve(@attributes)
-      
-  indexResultsByIteration: (allQueryResults) ->
-    _({}).tap (memo) ->
-      for result in allQueryResults
-        tuple = _.values(result)
-
-        [ dataLabel, dataValue ] = if tuple[0].match(/^(\d|\.)+$/)
-        then [ tuple[1], tuple[0] ]
-        else [ tuple[0], tuple[1] ]
-
-        memo[dataLabel] = parseInt(dataValue, 10)
-  
-  # Accepts a list of iteration labels and an indexed object of point values by 
-  # iteration and returns a graphable list of cumulative point values.
-  # If isYValueCumulative is true, values will be monotonically increasing.
-  dataSeriesFor: (allIterationLabels, resultsByIteration, lastIterationValue = 0) ->
-    if _.isEmpty(allIterationLabels) then [] else
-      [ first, rest ] = [ _.head(allIterationLabels), _.tail(allIterationLabels) ]
-      iterationValue = resultsByIteration[ first ] or 0
-      iterationValue += lastIterationValue if @attributes.cumulative
-      [ iterationValue ].concat @dataSeriesFor(rest, resultsByIteration, iterationValue)
-
-class Pringle.StoryWall extends Pringle.Model
-  refresh: () ->
-    ex = _.expectation()
-
-    @project.getCardTypes().then ex.expect("cardTypes")
-    @project.getCards(view: @attributes.view, page: "all").then ex.expect("cards")
-
-    _.tap $.Deferred(), (def) =>
-      ex.ready (returns) =>
-        def.resolve @refreshedAttributes(returns.cards[0], returns.cardTypes[0])
-
-  cardMethods:
-    property: (name) ->
-      _(@properties).detect( (property) -> property.name is name ).value
-
-  refreshedAttributes: (rawCards, cardTypes) ->
-    cardTypeIndex = _(cardTypes).inject ( (groups, cardType) => 
-      groups[cardType.name] = cardType; groups
-    ), {}
-
-    cards = for card in rawCards
-      _.extend(card, @cardMethods, card_type: cardTypeIndex[card.card_type.name])
-
-    cardGroups = _(cards).groupBy (card) => 
-      card.property(@attributes.groupBy)
-
-    lanes = for name in @attributes.laneNames
-      { name: name, cards: cardGroups[name] } 
-
-    _.extend {}, @attributes, { lanes: lanes, cardTypes: cardTypes }
