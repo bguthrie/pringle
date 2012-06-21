@@ -84,198 +84,6 @@ ul, li {
   }
 }
 
-#content .storyWall {
-  .legend {
-    display: none;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    height: 15px;
-
-    margin: 4px 10px 0px 10px;
-    background-color: @bgColor;
-    -webkit-border-radius: @cornerRadius;
-    -moz-border-radius: @cornerRadius;
-    float: right;
-    width: 400px;
-    padding: 10px;
-
-    .legendKey {
-      float: left;
-      margin-right: 8px;
-
-      .color {
-        -webkit-border-radius: @cornerRadius;
-        -moz-border-radius: @cornerRadius;
-        float: left;
-        width: 10px;
-        height: 10px;
-      }
-
-      .name {
-        padding-left: 4px;
-        font-size: x-small;
-        float: left;
-      }
-    }
-  }
-
-  .wall.horizontal {
-    .swimlane {
-      display: inline;
-      width: 100%;
-      border-bottom: 4px solid black;
-      float: left;
-      clear: both;
-
-      > .header {
-        -webkit-border-radius: @cornerRadius;
-        -moz-border-radius: @cornerRadius;
-        background-color: @headingColor;
-        padding: 4px;
-        text-align: center;
-        margin: 8px;
-        float: left;
-        width: 100px;
-      }
-
-      .cards {
-        float: left;
-        width: 90%;
-      }
-
-      .card {
-        -webkit-border-radius: @cornerRadius;
-        -moz-border-radius: @cornerRadius;
-        float: left;
-        margin: 8px;
-
-        .header {
-          -webkit-border-top-left-radius: @cornerRadius;
-          -moz-border-radius-top-left: @cornerRadius;
-          -webkit-border-bottom-left-radius: @cornerRadius;
-          -moz-border-bottom-left-radius: @cornerRadius;
-          background-color: black;
-          color: white;
-          opacity: 0.8;
-          font-size: small;
-          float: left;
-          padding: 4px 8px;
-          height: 16px;
-        }
-
-        .body {
-          -webkit-border-top-right-radius: @cornerRadius;
-          -moz-border-radius-top-right: @cornerRadius;
-          overflow: hidden;
-          width: 260px;
-          height: 12px;
-          padding: 4px;
-          margin: 0px 0px 4px 0px;
-          font-size: small;
-          color: black;
-          background-color: white;
-          opacity: 0.8;
-        }
-
-        .footer {
-          display: none;
-        }
-
-        .owner {
-          display: none;
-        }
-
-        .type {
-          display: none;
-        }
-      }
-    }
-  }
-
-  .wall.vertical {
-    margin-left: auto;
-    margin-right: auto;
-
-    .swimlane {
-      display: block;
-      width: 130px;
-      float: left;
-      border-right: 2px solid #888;
-
-      > .header {
-        -webkit-border-radius: @cornerRadius;
-        -moz-border-radius: @cornerRadius;
-        background-color: @headingColor;
-        padding: 4px;
-        text-align: center;
-        margin: 8px;
-      }
-
-      .cards {
-        height: 400px;
-        overflow: hidden;
-      }
-    }
-
-    .card {
-      -webkit-border-radius: @cornerRadius;
-      -moz-border-radius: @cornerRadius;
-      width: 114px;
-      float: left;
-      height: 100px;
-      margin: 8px;
-
-      .header {
-        background-color: black;
-        color: white;
-        opacity: 0.8;
-        font-size: small;
-        padding: 4px;
-        height: 15px;
-      }
-
-      .body {
-        font-size: x-small;
-        background-color: white;
-        opacity: 0.8;
-        color: black;
-        padding: 4px;
-        overflow: hidden;
-        height: 60px;
-
-        > div {
-          padding-top: 2px;
-        }
-
-        .name {
-          font-size: small;
-        }
-      }
-
-      .footer {
-        color: black;
-        text-align: right;
-        font-size: xx-small;
-        padding: 4px 2px 2px 0px;
-        font-weight: bold;
-        height: 15px;
-      }
-
-      .owner {
-        font-weight: bold;
-      }
-
-      .type {
-        color: #999;
-      }
-    }
-
-    .card.blocked {
-    }
-  }
-}
-
 #content .interestingValue {
   .value {
     display: inline;
@@ -306,6 +114,21 @@ ul, li {
     color: #888;
     font-style: italic;
     font-weight: 100;
+  }
+}
+
+#content .progressIndicator {
+  .range {
+    background-color: #ffffff;
+    width: 50%;
+    height: 100px;
+    margin: 30% auto 0px auto;
+  }
+  .progress {
+    // width: 37%;
+    height: 100%;
+    margin-left: 0px;
+    background-color: blue;
   }
 }
 

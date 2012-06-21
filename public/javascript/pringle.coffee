@@ -136,9 +136,11 @@ class Pringle.Viewport
       console.log("have hidden")
       view.render(@target).then () =>
         console.log("have rendered")
+        if view.attributes.onShow?
+          view.attributes.onShow(@target, view.attributes) 
         @show()
         console.log("have showed")
-        @_scheduleViewRotation()
+        # @_scheduleViewRotation()
 
 class Pringle.View
   constructor: (attributes) ->
@@ -150,7 +152,7 @@ class Pringle.View
   render: (target) ->
     def = $.Deferred()
     console.log("I'm being called")
-    target.html @template.tmpl(@attributes)
+    target.html @template.tmpl()
     def.resolve()
 
 class Pringle.Chart extends Pringle.View
