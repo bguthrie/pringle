@@ -7,6 +7,7 @@ gem "haml"
 gem "i18n"
 gem "foreman"
 gem "rake"
+gem "thin"
 
 group :test do
   gem "rspec"
